@@ -47,17 +47,17 @@ public:
 
 class Grid {
 private:
-	Ogre::SceneManager* mSceneMgr;		// pointer to scene graph
-	std::vector<GridRow> data;  // actually hold the grid data
-	int nRows;					// number of rows
-	int nCols;					// number of columns
+	Ogre::SceneManager* mSceneMgr;	// pointer to scene graph
+	std::vector<GridRow> data;		// actually hold the grid data
+	int nRows;						// number of rows
+	int nCols;						// number of columns
 public:
 	Grid(Ogre::SceneManager* mSceneMgr, int numRows, int numCols);	// create a grid
 	~Grid();					// destroy a grid
 
 	GridNode* getNode(int r, int c);  // get the node specified 
 
-	GridNode* getNorthNode(GridNode* n);		  // get adjacent nodes;
+	GridNode* getNorthNode(GridNode* n);	// get adjacent nodes;
 	GridNode* getSouthNode(GridNode* n);
 	GridNode* getEastNode(GridNode* n);
 	GridNode* getWestNode(GridNode* n);

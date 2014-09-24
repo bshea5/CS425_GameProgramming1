@@ -64,7 +64,7 @@ GameApplication::loadEnv()
 
 	string path = __FILE__; //gets the current cpp file's path with the cpp file
 	path = path.substr(0,1+path.find_last_of('\\')); //removes filename to leave path
-	path+= "level001.txt"; //if txt file is in the same directory as cpp file
+	path+= "levelB.txt";	//if txt file is in the same directory as cpp file
 	inputfile.open(path);
 
 	//inputfile.open("D:/CS425-2012/Lecture 8/GameEngine-loadLevel/level001.txt"); // bad explicit path!!!
@@ -149,6 +149,7 @@ GameApplication::loadEnv()
 					agent = new Agent(this->mSceneMgr, getNewName(), rent->filename, rent->y, rent->scale);
 					agentList.push_back(agent);
 					agent->setPosition(grid->getPosition(i,j).x, rent->y, grid->getPosition(i,j).z);
+					//agent->setNPosition(grid->getNode(i,j), rent->y);
 
 					// If we were using different characters, we'd have to deal with 
 					// different animation clips. 
@@ -165,7 +166,7 @@ GameApplication::loadEnv()
 					ent->setMaterialName("Examples/RustySteel");
 					Ogre::SceneNode* mNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 					mNode->attachObject(ent);
-					mNode->scale(0.1f,0.2f,0.1f); // cube is 100 x 100
+					mNode->scale(0.1f,0.2f,0.1f);		// cube is 100 x 100
 					grid->getNode(i,j)->setOccupied();  // indicate that agents can't pass through
 					mNode->setPosition(grid->getPosition(i,j).x, 10.0f, grid->getPosition(i,j).z);
 				}
@@ -175,7 +176,7 @@ GameApplication::loadEnv()
 					ParticleSystem* ps = mSceneMgr->createParticleSystem(getNewName(), "Examples/PurpleFountain");
 					Ogre::SceneNode* mNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
 					mNode->attachObject(ps);
-					mNode->setPosition(grid->getPosition(i,j).x, 0.0f, grid->getPosition(i,j).z);
+					mNode->setPosition(grid->getPosition(i,j).x, 60.0f, grid->getPosition(i,j).z);
 				}
 			}
 		}

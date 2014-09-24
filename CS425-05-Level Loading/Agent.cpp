@@ -37,10 +37,22 @@ Agent::~Agent(){
 	// mSceneMgr->destroyEntity(mBodyEntity);
 }
 
+//set the position of the agent via coordinates
 void 
 Agent::setPosition(float x, float y, float z)
 {
 	this->mBodyNode->setPosition(x, y + height, z);
+}
+
+//set the position of the agent via a Gridnode
+void
+Agent::setNPosition(GridNode* n, int y)
+{
+	float x = n->getPosition(n->getRow(), n->getColumn()).x;
+	float z = n->getPosition(n->getRow(), n->getColumn()).z;
+	this->setPosition(x, y, z);
+	this->mGridNode = n;
+	n->setOccupied();
 }
 
 // update is called at every frame from GameApplication::addTime
@@ -138,7 +150,7 @@ Agent::updateAnimations(Ogre::Real deltaTime)
 
 	mTimer += deltaTime; // how much time has passed since the last update
 
-	// Commented out to fix run animations
+	// Commented out to fix run animations :)
 	//if (mTopAnimID != ANIM_IDLE_TOP)
 	//if (mTopAnimID != ANIM_NONE)
 	//if (mTimer >= mAnims[mTopAnimID]->getLength())
@@ -184,10 +196,13 @@ Agent::fadeAnimations(Ogre::Real deltaTime)
 	}
 }
 
+//checks to see if there is a destination available in the mWalkList
+//if so, it sets up the variables for the agent's movement to the
+//next destination.
 bool 
 Agent::nextLocation()
 {
-	if ( mWalkList.empty() ) 
+	if ( mWalkList.empty() ) //any destinations to walk to?
 	{
 		mWalking = false;
 		return false;
@@ -197,11 +212,11 @@ Agent::nextLocation()
 	mDestination = mWalkList.front();	// get next destination
 	mWalkList.pop_front();				// remove from queue
 
-	mDirection = mDestination - mBodyNode->getPosition();
+	mDirection = mDestination - mBodyNode->getPosition();	//set direction
 
 	mDistance = mDirection.normalise();
 
-	// Rotation code will go here
+	// Rotation code will go here, moved from updateLocomote
  	Ogre::Vector3 src = mBodyNode->getOrientation() * Ogre::Vector3::UNIT_Z;
 	if ( (1.0f + src.dotProduct(mDirection)) < 0.0001f) 
 	{
@@ -244,20 +259,6 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 				setTopAnimation(ANIM_IDLE_TOP);
 				return;
 			}
-			//else  //Moved to nextLocation() so that ogre will turn upon new destination
-			//{
-			//	// Rotation code will go here
- 		//		Ogre::Vector3 src = mBodyNode->getOrientation() * Ogre::Vector3::UNIT_Z;
-			//	if ( (1.0f + src.dotProduct(mDirection)) < 0.0001f) 
-			//	{
-			//		mBodyNode->yaw(Ogre::Degree(180));
-			//	}
-			//	else 
-			//	{
-			//		Ogre::Quaternion quat = src.getRotationTo(mDirection);
-			//		mBodyNode->rotate(quat);
-			//	}
-			//}
 		}
 		else 
 		{
@@ -266,9 +267,11 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 	}
 }
 
+//generates a list of random points to walk to
+//Not Grid based. Code from last assignment
 void
 Agent::genWalkList() 
-{
+{  
 	float x, y;
 	for (int i = 0; i < 15; i++)
 	{
@@ -278,16 +281,20 @@ Agent::genWalkList()
 	}
 }
 
+//walk to gridnode n by passing the position of that gridnode to the mWalklist
+//when mWalklist is checked, the ogre will walk to this point.
+//presently overrids old destination whenever called.
 void
 Agent::walkTo(GridNode* n, Grid* g) 
-{
+{   
 	Ogre::Vector3 destination = n->getPosition( g->getNumRows(), g->getNumCols() );
-	destination[1] = this->height + height;	//walk through grid without this
-	if ( mWalking )
+	destination[1] = this->height + height;	//this keeps the orge above the grid
+	if ( mWalking )	// overrides old destination
 	{
 		mWalking = false;
 		mWalkList.clear();
 	}
-	mWalkList.push_back( destination );
+	mWalkList.push_back( destination );	//pass destination to walklist
 
+	
 }

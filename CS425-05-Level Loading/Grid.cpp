@@ -1,6 +1,7 @@
 #include "Grid.h"
 #include <iostream>
 #include <fstream>
+#include <cmath>
 
 ////////////////////////////////////////////////////////////////
 // create a node
@@ -134,7 +135,28 @@ Grid::Grid(Ogre::SceneManager* mSceneMgr, int numRows, int numCols)
 			count++;
 		}
 	}
+	/////////////////////
+	// TESTING STUFF ////
+
 	std::cout << getSouthNode(getNode(1,1))->getID() << std::endl;
+
+	//test manhattan distance accross the grid ///////////////////////
+	int manDist = getDistance(getNode(0,0), getNode(nRows-1, nCols-1));
+	std::cout << "Manhattan distance across the board is " << manDist << " nodes." << std::endl;
+	//////////////////////////////////////////////////////////////////
+
+	//test get neighbors ////////////////////////////////////////////
+	std::vector<GridNode*> neighbors = getAllNeighbors(getNode(0,0));
+	std::cout << "Neighbors of node " << getNode(0,0)->getID() << " are..." << std::endl;
+	for (int i = 0; i < neighbors.size(); i++)
+	{
+		if (neighbors[i] != NULL)
+			std::cout << neighbors[i]->getID() << std::endl;
+	}
+	/////////////////////////////////////////////////////////////////
+
+	// END TESTING /////
+	////////////////////
 }
 
 /////////////////////////////////////////
@@ -146,7 +168,7 @@ Grid::~Grid(){};
 GridNode* 
 Grid::getNode(int r, int c)
 {
-	if (r >= nRows || c >= nCols || r < 0 || c < 0)
+	if (r >= nRows || c >= nCols || r < 0 || c < 0)	//check if out of bounds
 		return NULL;
 
 	return &this->data[c].data[r];
@@ -154,6 +176,7 @@ Grid::getNode(int r, int c)
 
 ////////////////////////////////////////////////////////////////
 // get adjacent nodes;
+// utilizing the getNode method to check for neighbors
 GridNode* 
 Grid::getNorthNode(GridNode* n)
 {
@@ -202,6 +225,9 @@ Grid::getSWNode(GridNode* n)
 	return getNode(n->getRow()+1, n->getColumn()-1);
 }
 
+//returns a vector of neighbors
+//vector will contain a NULL for any out of bounds neighbors
+//{North,South,East,West,NE,NW,SE,SW}
 std::vector<GridNode*>
 Grid::getAllNeighbors(GridNode* n)
 {
@@ -222,9 +248,10 @@ Grid::getAllNeighbors(GridNode* n)
 int 
 Grid::getDistance(GridNode* node1, GridNode* node2)
 {
-	int distance = node2->getRow() - node1->getRow();
-	distance = distance + (node2->getColumn() - node2->getColumn());
-	return distance;
+	int distance;
+	distance = std::abs(node2->getRow() - node1->getRow());				//  number of row nodes away
+	distance += std::abs((node2->getColumn() - node1->getColumn()));	//+ number of col nodes away
+	return distance;													//= total # of nodes away
 }
 
 ///////////////////////////////////////////////////////////////////////////////

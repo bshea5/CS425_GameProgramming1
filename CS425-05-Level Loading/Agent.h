@@ -18,7 +18,6 @@ private:
 	float height;						// height the character should be moved up
 	float scale;						// scale of character from original model
 
-
 	// all of the animations our character has, and a null ID
 	// some of these affect separate body parts and will be blended together
 	enum AnimID
@@ -47,11 +46,12 @@ private:
 	Ogre::Real mTimer;						// general timer to see how long animations have been playing
 	Ogre::Real mVerticalVelocity;			// for jumping
 
-	void setupAnimations();					// load this character's animations
+	void setupAnimations();							// load this character's animations
 	void fadeAnimations(Ogre::Real deltaTime);		// blend from one animation to another
 	void updateAnimations(Ogre::Real deltaTime);	// update the animation frame
 
 	// for locomotion
+	GridNode* mGridNode;					// node the agent occupies 
 	bool mWalking;							// is the agent walking presently?
 	Ogre::Real mDistance;					// The distance the agent has left to travel
 	Ogre::Vector3 mDirection;				// The direction the object is moving
@@ -68,9 +68,10 @@ private:
 public:
 	Agent(Ogre::SceneManager* SceneManager, std::string name, std::string filename, float height, float scale);
 	~Agent();
-	void setPosition(float x, float y, float z);
+	void setPosition(float x, float y, float z);	//set position by coordinates
+	void setNPosition(GridNode* n, int y);			//set position by Grid
 
-	void update(Ogre::Real deltaTime);	// update the agent
+	void update(Ogre::Real deltaTime);		// update the agent
 	
 	void setBaseAnimation(AnimID id, bool reset = false);	// choose animation to display
 	void setTopAnimation(AnimID id, bool reset = false);
