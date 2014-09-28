@@ -64,7 +64,7 @@ GameApplication::loadEnv()
 
 	string path = __FILE__; //gets the current cpp file's path with the cpp file
 	path = path.substr(0,1+path.find_last_of('\\')); //removes filename to leave path
-	path+= "levelB.txt";	//if txt file is in the same directory as cpp file
+	path+= "level001.txt";	//if txt file is in the same directory as cpp file
 	inputfile.open(path);
 
 	//inputfile.open("D:/CS425-2012/Lecture 8/GameEngine-loadLevel/level001.txt"); // bad explicit path!!!
@@ -149,6 +149,8 @@ GameApplication::loadEnv()
 					agent = new Agent(this->mSceneMgr, getNewName(), rent->filename, rent->y, rent->scale);
 					agentList.push_back(agent);
 					agent->setPosition(grid->getPosition(i,j).x, rent->y, grid->getPosition(i,j).z);
+					agent->setGrid(grid);						// pass pointer for grid to agent
+					agent->claimNode(grid->getNode(i,j));		// pass pointer for the gridNode agent is in
 					//agent->setNPosition(grid->getNode(i,j), rent->y);
 
 					// If we were using different characters, we'd have to deal with 
@@ -157,6 +159,7 @@ GameApplication::loadEnv()
 				else	// Load objects
 				{
 					grid->loadObject(getNewName(), rent->filename, i, rent->y, j, rent->scale);
+					grid->getNode(i,j)->setOccupied();	// set node with an object as occupied
 				}
 			else // not an object or agent
 			{
@@ -388,7 +391,8 @@ GameApplication::keyPressed( const OIS::KeyEvent &arg ) // Moved from BaseApplic
 			int x = rand() % grid->getNumRows();	//get a random row
 			int y = rand() % grid->getNumCols();	//get a random column
 			
-			(*iter)->walkTo(grid->getNode(x, y), grid);		//run to node
+			//(*iter)->walkTo(grid->getNode(x, y), grid);		//run to node
+			(*iter)->aStar(grid->getNode(x, y), grid);
 		}
 	}
    

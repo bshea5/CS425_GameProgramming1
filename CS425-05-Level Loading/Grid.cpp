@@ -243,7 +243,8 @@ Grid::getAllNeighbors(GridNode* n)
 	return neighbors;
 }
 ////////////////////////////////////////////////////////////////
-//get distance between between two nodes
+//get distance between between two nodes, by the number of nodes
+//(vertically/horizontally)away times 10.
 //return the Manhattan distance
 int 
 Grid::getDistance(GridNode* node1, GridNode* node2)
@@ -251,7 +252,7 @@ Grid::getDistance(GridNode* node1, GridNode* node2)
 	int distance;
 	distance = std::abs(node2->getRow() - node1->getRow());				//  number of row nodes away
 	distance += std::abs((node2->getColumn() - node1->getColumn()));	//+ number of col nodes away
-	return distance;													//= total # of nodes away
+	return distance * NODESIZE;											//= total # of nodes away * 10
 }
 
 ///////////////////////////////////////////////////////////////////////////////

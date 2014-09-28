@@ -51,7 +51,8 @@ private:
 	void updateAnimations(Ogre::Real deltaTime);	// update the animation frame
 
 	// for locomotion
-	GridNode* mGridNode;					// node the agent occupies 
+	Grid* mGrid;							// pointer to the current grid the agent is in
+	GridNode* mGridNode;					// node the agent currently occupies 
 	bool mWalking;							// is the agent walking presently?
 	Ogre::Real mDistance;					// The distance the agent has left to travel
 	Ogre::Vector3 mDirection;				// The direction the object is moving
@@ -60,6 +61,7 @@ private:
 	Ogre::Real mWalkSpeed;					// The speed at which the object is moving
 	bool nextLocation();					// Is there another destination?
 	void updateLocomote(Ogre::Real deltaTime);		// update the character's walking
+	
 
 	//////////////////////////////////////////////
 	// Lecture 4
@@ -69,13 +71,18 @@ public:
 	Agent(Ogre::SceneManager* SceneManager, std::string name, std::string filename, float height, float scale);
 	~Agent();
 	void setPosition(float x, float y, float z);	//set position by coordinates
-	void setNPosition(GridNode* n, int y);			//set position by Grid
+	//void setNPosition(GridNode* n, int y);			//set position by Grid
+
+	void claimNode(GridNode* n);		//set pointer to current grid node agent is occupying
+	void setGrid(Grid* g);				//set pointer to grid level agent is in
 
 	void update(Ogre::Real deltaTime);		// update the agent
 	
 	void setBaseAnimation(AnimID id, bool reset = false);	// choose animation to display
 	void setTopAnimation(AnimID id, bool reset = false);
+
 	void genWalkList();						//generate a random walk list
 	void walkTo(GridNode* n, Grid* g);		//walk character from current location to destination node
+	void aStar(GridNode* n, Grid* g);		// calculate path to destination 
 
 };
