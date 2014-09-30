@@ -314,31 +314,31 @@ Agent::walkTo(GridNode* n, Grid* g)
 //calculate a path to the given node destination avoiding all obstacles
 //pass coordinates from each node in the path to the mWalkList
 void
-Agent::aStar(GridNode* n, Grid* g)
+Agent::aStar(GridNode* n, Grid* g) //rename this!
 {
 	if (!n->isClear()) { return; }
 	else std::cout << "walk to node: " << n->getID() << std::endl;
 
-	//Vector way
-	//pretty much like the array way listed above
 	//uses so much memory!!!! but faster than managing lists I suppose
 	//use static 2D vectors to for costs, parents, and whether on open/closed list.
 	static std::vector<std::vector<int>> fCosts(g->getNumRows(), std::vector<int>(g->getNumCols(), 0));
 	static std::vector<std::vector<int>> gCosts(g->getNumRows(), std::vector<int>(g->getNumCols(), 0));
 	static std::vector<std::vector<int>> hCosts(g->getNumRows(), std::vector<int>(g->getNumCols(), 0));
 	static std::vector<std::vector<int>> whichList(g->getNumRows(), std::vector<int>(g->getNumCols(), 0));
-	//use 2D vector to represent what node is the parent of another
 	static std::vector<std::vector<GridNode*>> parents(g->getNumRows(), std::vector<GridNode*>(g->getNumCols(), 0));
 	
-	static int onOpenList = -1;				//values to use for if on open/closed list
-	static int onClosedList = 0;			//
-	static int diagonal_cost = sqrt(NODESIZE * NODESIZE + NODESIZE * NODESIZE);	//cost to move diagonaly
-
 	GridNode* current_node = mGridNode;		//node we are currently checking
 	GridNode* next_node = NULL;				//node to check next
-	int lowest_fCost;
+
+	static const int diagonal_cost = sqrt(NODESIZE * NODESIZE + NODESIZE * NODESIZE);
+	int lowest_fCost = NULL;
+	
+	static int onOpenList = -1;				//values to use for if on open/closed list
+	static int onClosedList = 0;			//	
+	
 	onOpenList += 5;						//these values will increment with each call to aStar, so old vals are obsolete
-	onClosedList += 5;
+	onClosedList += 5;						//
+
 	whichList[current_node->getRow()][current_node->getColumn()] = onClosedList;
 	gCosts[current_node->getRow()][current_node->getColumn()] = 0;
 
@@ -365,12 +365,12 @@ Agent::aStar(GridNode* n, Grid* g)
 						&& neighbors[i]->getColumn() != current_node->getColumn())
 					{  //diagonal move (NE,NW,SE,SW)
 						gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = 
-							NODESIZE + gCosts[current_node->getRow()][current_node->getColumn()];
+							diagonal_cost + gCosts[current_node->getRow()][current_node->getColumn()];
 					}
 					else
 					{  //horizontal/vertical move (N,S,E,W)
 						gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = 
-							diagonal_cost + gCosts[current_node->getRow()][current_node->getColumn()];
+							NODESIZE + gCosts[current_node->getRow()][current_node->getColumn()];
 					}
 					parents[neighbors[i]->getRow()][neighbors[i]->getColumn()] = current_node;
 					hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = g->getDistance(neighbors[i], n);
@@ -387,14 +387,14 @@ Agent::aStar(GridNode* n, Grid* g)
 					if (neighbors[i]->getRow() != current_node->getRow() 
 						&& neighbors[i]->getColumn() != current_node->getColumn())
 					{  //diagonal move (NE,NW,SE,SW)
-						new_gCost = NODESIZE + gCosts[current_node->getRow()][current_node->getColumn()];
+						new_gCost = diagonal_cost + gCosts[current_node->getRow()][current_node->getColumn()];
 					}
 					else
 					{  //horizontal/vertical move (N,S,E,W)
-						new_gCost = diagonal_cost + gCosts[current_node->getRow()][current_node->getColumn()];
+						new_gCost = NODESIZE + gCosts[current_node->getRow()][current_node->getColumn()];
 					}
 
-					//if new cost is lower, change the parent and recalculate F and G ////////
+					//if new cost is lower, change the parent and recalculate F ////////
 					if (new_gCost < gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()])
 					{
 						gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = new_gCost;
@@ -409,10 +409,7 @@ Agent::aStar(GridNode* n, Grid* g)
 			}
 		}//end for
 
-		//whichList[current_node->getRow()][current_node->getColumn()] = onClosedList;
-
 		//Pick the node with the lowest F value
-		lowest_fCost = NULL;
 		for (int i = 0; i < g->getNumRows(); i++)
 		{
 			for (int j = 0; j < g->getNumCols(); j++)
@@ -434,6 +431,8 @@ Agent::aStar(GridNode* n, Grid* g)
 
 	}//end while
 
+	//TODO: optomize results. Doesn't always give best path.
+
 	//set up mWalkList using parentage discovered through previous while loop
 	//start with n, and work your way through each parent until the start point
 	if (mWalking)	// overrides old destination
@@ -450,40 +449,5 @@ Agent::aStar(GridNode* n, Grid* g)
 		current_node = parents[current_node->getRow()][current_node->getColumn()];
 	}
 	mGridNode = n; //ERROR: occurs when spacebar is hit before dest. is reached....
-
-	//List WAY
-	//std::list<GridNode*> openList;		//nodes to be checked
-	//std::list<GridNode*> closedList;	//nodes on path to be walked
-	//std::list<GridNode*>::iterator it;
-	//GridNode* lowFNode;					//node with the lowest F value
-	//int hvCost = NODESIZE;				//horizontal/vertical cost
-	//int dCost = sqrt(NODESIZE*NODESIZE + NODESIZE*NODESIZE);	//diagonal cost
-	//int cost = 0;
-	//
-	//openList.push_back(mGridNode);
-
-	//while (closedList.back() != n)	// loop til destination is in closed list
-	//{
-	//	//add walkable neighbor nodes to the openList
-	//	std::vector<GridNode*> neighbors = g->getAllNeighbors(openList.back());
-	//	for (int i = 0; i < neighbors.size(); i++)
-	//	{
-	//		if (neighbors[i] != NULL && neighbors[i]->isClear())
-	//		{
-	//			openList.push_back(neighbors[i]);
-	//		}
-	//	}
-
-	//	//remove parent node from openList and add to closedList
-	//	closedList.push_back(openList.front());
-	//	openList.pop_front();
-
-	//	//Pick the node with the lowest F value
-	//	lowFNode = *openList.begin();
-	//	for (it = openList.begin(); it != openList.end(); it++)
-	//	{
-	//		//calc F for node, and compare with others
-	//		// F = cost + H
-	//	}
-	//}
+					// TODO: move this somewhere else
 }
