@@ -391,8 +391,8 @@ GameApplication::keyPressed( const OIS::KeyEvent &arg ) // Moved from BaseApplic
 			int x = rand() % grid->getNumRows();	//get a random row
 			int y = rand() % grid->getNumCols();	//get a random column
 			
-			//(*iter)->walkTo(grid->getNode(x, y), grid);		//run to node
-			(*iter)->aStar(grid->getNode(x, y), grid);
+			//(*iter)->walkTo(grid->getNode(x, y));		//run to node
+			(*iter)->aStar(grid->getNode(x, y));
 		}
 	}
    

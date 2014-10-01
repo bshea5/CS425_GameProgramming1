@@ -2,9 +2,10 @@
 // Class to hold the grid layout of our environment
 // Used for navigation and AI, not graphics
 
-#ifndef GRID_H
-#define GRID_H
+//#ifndef GRID_H
+
 #pragma once
+#define GRID_H
 #include <iostream>
 #include <vector>
 #include <assert.h>
@@ -78,4 +79,4 @@ public:
 	
 };
 
-#endif
+//#endif

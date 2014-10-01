@@ -299,9 +299,9 @@ Agent::genWalkList()
 //presently overrids old destination whenever called.
 //adding aStar method call inside to get a path to destination, going around obstacles
 void
-Agent::walkTo(GridNode* n, Grid* g) 
+Agent::walkTo(GridNode* n) 
 {   
-	Ogre::Vector3 destination = n->getPosition( g->getNumRows(), g->getNumCols() );
+	Ogre::Vector3 destination = n->getPosition( mGrid->getNumRows(), mGrid->getNumCols() );
 	destination[1] = this->height + height;	//this keeps the orge above the grid
 	if ( mWalking )	// overrides old destination
 	{
@@ -314,18 +314,18 @@ Agent::walkTo(GridNode* n, Grid* g)
 //calculate a path to the given node destination avoiding all obstacles
 //pass coordinates from each node in the path to the mWalkList
 void
-Agent::aStar(GridNode* n, Grid* g) //rename this!
+Agent::aStar(GridNode* n) //rename this!
 {
 	if (!n->isClear()) { return; }
 	else std::cout << "walk to node: " << n->getID() << std::endl;
 
 	//uses so much memory!!!! but faster than managing lists I suppose
 	//use static 2D vectors to for costs, parents, and whether on open/closed list.
-	static std::vector<std::vector<int>> fCosts(g->getNumRows(), std::vector<int>(g->getNumCols(), 0));
-	static std::vector<std::vector<int>> gCosts(g->getNumRows(), std::vector<int>(g->getNumCols(), 0));
-	static std::vector<std::vector<int>> hCosts(g->getNumRows(), std::vector<int>(g->getNumCols(), 0));
-	static std::vector<std::vector<int>> whichList(g->getNumRows(), std::vector<int>(g->getNumCols(), 0));
-	static std::vector<std::vector<GridNode*>> parents(g->getNumRows(), std::vector<GridNode*>(g->getNumCols(), 0));
+	static std::vector<std::vector<int>> fCosts(mGrid->getNumRows(), std::vector<int>(mGrid->getNumCols(), 0));
+	static std::vector<std::vector<int>> gCosts(mGrid->getNumRows(), std::vector<int>(mGrid->getNumCols(), 0));
+	static std::vector<std::vector<int>> hCosts(mGrid->getNumRows(), std::vector<int>(mGrid->getNumCols(), 0));
+	static std::vector<std::vector<int>> whichList(mGrid->getNumRows(), std::vector<int>(mGrid->getNumCols(), 0));
+	static std::vector<std::vector<GridNode*>> parents(mGrid->getNumRows(), std::vector<GridNode*>(mGrid->getNumCols(), 0));
 	
 	GridNode* current_node = mGridNode;		//node we are currently checking
 	GridNode* next_node = NULL;				//node to check next
@@ -345,8 +345,8 @@ Agent::aStar(GridNode* n, Grid* g) //rename this!
 	while (whichList[n->getRow()][n->getColumn()] != onClosedList) //run until target node is on the closed list
 	{
 		//look at adjacent nodes and mark walkable nodes as onOpenList
-		//and assign F,G,H values
-		std::vector<GridNode*> neighbors = g->getAllNeighbors(current_node);
+		//and assign F, G, H values
+		std::vector<GridNode*> neighbors = mGrid->getAllNeighbors(current_node);
 		for (int i = 0; i < neighbors.size(); i++)
 		{
 			//TODO: maybe put this chunk of code in its own method, its tough to read
@@ -373,7 +373,7 @@ Agent::aStar(GridNode* n, Grid* g) //rename this!
 							NODESIZE + gCosts[current_node->getRow()][current_node->getColumn()];
 					}
 					parents[neighbors[i]->getRow()][neighbors[i]->getColumn()] = current_node;
-					hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = g->getDistance(neighbors[i], n);
+					hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = mGrid->getDistance(neighbors[i], n);
 					fCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] =
 													  gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()]
 													+ hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()];
@@ -399,7 +399,7 @@ Agent::aStar(GridNode* n, Grid* g) //rename this!
 					{
 						gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = new_gCost;
 						parents[neighbors[i]->getRow()][neighbors[i]->getColumn()] = current_node;
-						hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = g->getDistance(neighbors[i], n);
+						hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = mGrid->getDistance(neighbors[i], n);
 						fCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] =
 													  gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()]
 													+ hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()];
@@ -410,17 +410,16 @@ Agent::aStar(GridNode* n, Grid* g) //rename this!
 		}//end for
 
 		//Pick the node with the lowest F value
-		for (int i = 0; i < g->getNumRows(); i++)
+		for (int i = 0; i < mGrid->getNumRows(); i++)
 		{
-			for (int j = 0; j < g->getNumCols(); j++)
+			for (int j = 0; j < mGrid->getNumCols(); j++)
 			{
 				if (whichList[i][j] == onOpenList)	//check only nodes marked onOpenList
 				{
-					
 					if (lowest_fCost == NULL || fCosts[i][j] <= lowest_fCost)
 					{
 						lowest_fCost = fCosts[i][j];
-						next_node = g->getNode(i,j);
+						next_node = mGrid->getNode(i,j);
 					}
 				}
 			}
@@ -430,8 +429,6 @@ Agent::aStar(GridNode* n, Grid* g) //rename this!
 		whichList[current_node->getRow()][current_node->getColumn()] = onClosedList;
 
 	}//end while
-
-	//TODO: optomize results. Doesn't always give best path.
 
 	//set up mWalkList using parentage discovered through previous while loop
 	//start with n, and work your way through each parent until the start point
@@ -443,7 +440,7 @@ Agent::aStar(GridNode* n, Grid* g) //rename this!
 	while (current_node != mGridNode)
 	{
 		std::cout << "adding Node: " << current_node->getID() << std::endl;
-		Ogre::Vector3 destination = current_node->getPosition(g->getNumRows(), g->getNumCols());
+		Ogre::Vector3 destination = current_node->getPosition(mGrid->getNumRows(), mGrid->getNumCols());
 		destination[1] = this->height + this->height;	//this keeps the orge above the grid
 		mWalkList.push_front(destination);
 		current_node = parents[current_node->getRow()][current_node->getColumn()];

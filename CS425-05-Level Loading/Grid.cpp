@@ -180,48 +180,56 @@ Grid::getNode(int r, int c)
 GridNode* 
 Grid::getNorthNode(GridNode* n)
 {
+	if (n == NULL) { return NULL; }
 	return getNode(n->getRow()-1, n->getColumn());
 }
 
 GridNode* 
 Grid::getSouthNode(GridNode* n)
 {
+	if (n == NULL) { return NULL; }
 	return getNode(n->getRow()+1, n->getColumn());
 }
 
 GridNode* 
 Grid::getEastNode(GridNode* n)
 {
+	if (n == NULL) { return NULL; }
 	return getNode(n->getRow(), n->getColumn()+1);
 }
 
 GridNode* 
 Grid::getWestNode(GridNode* n)
 {
+	if (n == NULL) { return NULL; }
 	return getNode(n->getRow(), n->getColumn()-1);
 }
 
 GridNode* 
 Grid::getNENode(GridNode* n)  
 {
+	if (n == NULL) { return NULL; }
 	return getNode(n->getRow()-1, n->getColumn()+1);
 }
 
 GridNode* 
 Grid::getNWNode(GridNode* n) 
 {
+	if (n == NULL) { return NULL; }
 	return getNode(n->getRow()-1, n->getColumn()-1);
 }
 
 GridNode* 
 Grid::getSENode(GridNode* n) 
 {
+	if (n == NULL) { return NULL; }
 	return getNode(n->getRow()+1, n->getColumn()+1);
 }
 
 GridNode* 
 Grid::getSWNode(GridNode* n) 
 {
+	if (n == NULL) { return NULL; }
 	return getNode(n->getRow()+1, n->getColumn()-1);
 }
 
@@ -249,6 +257,7 @@ Grid::getAllNeighbors(GridNode* n)
 int 
 Grid::getDistance(GridNode* node1, GridNode* node2)
 {
+	if (node1 == NULL || node2 == NULL) { return NULL; }
 	int distance;
 	distance = std::abs(node2->getRow() - node1->getRow());				//  number of row nodes away
 	distance += std::abs((node2->getColumn() - node1->getColumn()));	//+ number of col nodes away

@@ -50,9 +50,11 @@ private:
 	void fadeAnimations(Ogre::Real deltaTime);		// blend from one animation to another
 	void updateAnimations(Ogre::Real deltaTime);	// update the animation frame
 
-	// for locomotion
+	// for A*
 	Grid* mGrid;							// pointer to the current grid the agent is in
 	GridNode* mGridNode;					// node the agent currently occupies 
+
+	// for locomotion
 	bool mWalking;							// is the agent walking presently?
 	Ogre::Real mDistance;					// The distance the agent has left to travel
 	Ogre::Vector3 mDirection;				// The direction the object is moving
@@ -82,7 +84,7 @@ public:
 	void setTopAnimation(AnimID id, bool reset = false);
 
 	void genWalkList();						//generate a random walk list
-	void walkTo(GridNode* n, Grid* g);		//walk character from current location to destination node
-	void aStar(GridNode* n, Grid* g);		// calculate path to destination 
+	void walkTo(GridNode* n);		//walk character from current location to destination node
+	void aStar(GridNode* n);		// calculate path to destination 
 
 };
