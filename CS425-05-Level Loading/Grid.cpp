@@ -138,21 +138,21 @@ Grid::Grid(Ogre::SceneManager* mSceneMgr, int numRows, int numCols)
 	/////////////////////
 	// TESTING STUFF ////
 
-	std::cout << getSouthNode(getNode(1,1))->getID() << std::endl;
+	// std::cout << getSouthNode(getNode(1,1))->getID() << std::endl;
 
-	//test manhattan distance accross the grid ///////////////////////
-	int manDist = getDistance(getNode(0,0), getNode(nRows-1, nCols-1));
-	std::cout << "Manhattan distance across the board is " << manDist << " nodes." << std::endl;
-	//////////////////////////////////////////////////////////////////
+	// //test manhattan distance accross the grid ///////////////////////
+	// int manDist = getDistance(getNode(0,0), getNode(nRows-1, nCols-1));
+	// std::cout << "Manhattan distance across the board is " << manDist << " nodes." << std::endl;
+	// //////////////////////////////////////////////////////////////////
 
-	//test get neighbors ////////////////////////////////////////////
-	std::vector<GridNode*> neighbors = getAllNeighbors(getNode(0,0));
-	std::cout << "Neighbors of node " << getNode(0,0)->getID() << " are..." << std::endl;
-	for (int i = 0; i < neighbors.size(); i++)
-	{
-		if (neighbors[i] != NULL)
-			std::cout << neighbors[i]->getID() << std::endl;
-	}
+	// //test get neighbors ////////////////////////////////////////////
+	// std::vector<GridNode*> neighbors = getAllNeighbors(getNode(0,0));
+	// std::cout << "Neighbors of node " << getNode(0,0)->getID() << " are..." << std::endl;
+	// for (int i = 0; i < neighbors.size(); i++)
+	// {
+	// 	if (neighbors[i] != NULL)
+	// 		std::cout << neighbors[i]->getID() << std::endl;
+	// }
 	/////////////////////////////////////////////////////////////////
 
 	// END TESTING /////

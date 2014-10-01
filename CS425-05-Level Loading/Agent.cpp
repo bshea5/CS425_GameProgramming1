@@ -30,6 +30,9 @@ Agent::Agent(Ogre::SceneManager* SceneManager, std::string name, std::string fil
 	mWalking = false;
 	mWalkSpeed = 35.0f;	
 	mDirection = Ogre::Vector3::ZERO;
+
+	mGrid = NULL;
+	mGridNode = NULL;
 }
 
 Agent::~Agent(){
