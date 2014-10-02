@@ -76,6 +76,12 @@ public:
 
 	void printToFile();				// Print a grid to a file.  Good for debugging
 	void loadObject(std::string name, std::string filename, int row, int height, int col, float scale = 1); // load and place a model in a certain location.
+
+	//std::vector<std::vector<int>> fCosts;
+	//std::vector<std::vector<int>> gCosts;
+	//std::vector<std::vector<int>> hCosts;
+	//std::vector<std::vector<int>> whichList;
+	//std::vector<std::vector<GridNode*>> parents;
 	
 };
 

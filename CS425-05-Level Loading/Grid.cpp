@@ -181,56 +181,72 @@ GridNode*
 Grid::getNorthNode(GridNode* n)
 {
 	if (n == NULL) { return NULL; }
-	return getNode(n->getRow()-1, n->getColumn());
+	GridNode* neighbor = getNode(n->getRow()-1, n->getColumn());
+	if (neighbor == NULL || !neighbor->isClear()) { return NULL; }
+	return neighbor;
 }
 
 GridNode* 
 Grid::getSouthNode(GridNode* n)
 {
 	if (n == NULL) { return NULL; }
-	return getNode(n->getRow()+1, n->getColumn());
+	GridNode* neighbor = getNode(n->getRow()+1, n->getColumn());
+	if (neighbor == NULL || !neighbor->isClear()) { return NULL; }
+	return neighbor;
 }
 
 GridNode* 
 Grid::getEastNode(GridNode* n)
 {
 	if (n == NULL) { return NULL; }
-	return getNode(n->getRow(), n->getColumn()+1);
+	GridNode* neighbor = getNode(n->getRow(), n->getColumn()+1);
+	if (neighbor == NULL || !neighbor->isClear()) { return NULL; }
+	return neighbor;
 }
 
 GridNode* 
 Grid::getWestNode(GridNode* n)
 {
 	if (n == NULL) { return NULL; }
-	return getNode(n->getRow(), n->getColumn()-1);
+	GridNode* neighbor = getNode(n->getRow(), n->getColumn()-1);
+	if (neighbor == NULL || !neighbor->isClear()) { return NULL; }
+	return neighbor;
 }
 
 GridNode* 
 Grid::getNENode(GridNode* n)  
 {
-	if (n == NULL) { return NULL; }
-	return getNode(n->getRow()-1, n->getColumn()+1);
+	if (getNorthNode(n) == NULL || getEastNode(n) == NULL) { return NULL; }
+	GridNode* neighbor = getNode(getNorthNode(n)->getRow(), getEastNode(n)->getColumn());
+	if (neighbor == NULL || !neighbor->isClear()) { return NULL; }
+	return neighbor;
 }
 
 GridNode* 
 Grid::getNWNode(GridNode* n) 
 {
-	if (n == NULL) { return NULL; }
-	return getNode(n->getRow()-1, n->getColumn()-1);
+	if (getNorthNode(n) == NULL || getWestNode(n) == NULL) { return NULL; }
+	GridNode* neighbor = getNode(getNorthNode(n)->getRow(), getWestNode(n)->getColumn());
+	if (neighbor == NULL || !neighbor->isClear()) { return NULL; }
+	return neighbor;
 }
 
 GridNode* 
 Grid::getSENode(GridNode* n) 
 {
-	if (n == NULL) { return NULL; }
-	return getNode(n->getRow()+1, n->getColumn()+1);
+	if (getSouthNode(n) == NULL || getEastNode(n) == NULL) { return NULL; }
+	GridNode* neighbor = getNode(getSouthNode(n)->getRow(), getEastNode(n)->getColumn());
+	if (neighbor == NULL || !neighbor->isClear()) { return NULL; }
+	return neighbor;
 }
 
 GridNode* 
 Grid::getSWNode(GridNode* n) 
 {
-	if (n == NULL) { return NULL; }
-	return getNode(n->getRow()+1, n->getColumn()-1);
+	if (getSouthNode(n) == NULL || getWestNode(n) == NULL) { return NULL; }
+	GridNode* neighbor = getNode(getSouthNode(n)->getRow(), getWestNode(n)->getColumn());
+	if (neighbor == NULL || !neighbor->isClear()) { return NULL; }
+	return neighbor;
 }
 
 //returns a vector of neighbors
@@ -286,6 +302,11 @@ Grid::printToFile()
 		for (int j = 0; j < nCols; j++)
 		{
 			outFile << this->getNode(i, j)->contains << " ";
+			if (this->getNode(i, j)->contains != '.' 
+				&& this->getNode(i, j)->contains != 'B')
+			{
+				this->getNode(i, j)->contains = '.';
+			}
 		}
 		outFile << std::endl;
 	}

@@ -85,6 +85,6 @@ public:
 
 	void genWalkList();						//generate a random walk list
 	void walkTo(GridNode* n);		//walk character from current location to destination node
-	void aStar(GridNode* n);		// calculate path to destination 
+	void moveTo(GridNode* n);		// calculate path to destination 
 
 };
