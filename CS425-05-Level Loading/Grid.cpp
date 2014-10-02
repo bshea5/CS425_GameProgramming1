@@ -135,6 +135,13 @@ Grid::Grid(Ogre::SceneManager* mSceneMgr, int numRows, int numCols)
 			count++;
 		}
 	}
+	//vectors to store info for A* 
+	fCosts.resize(this->nRows, std::vector<int>(this->nCols, 0));
+	gCosts.resize(this->nRows, std::vector<int>(this->nCols, 0));
+	hCosts.resize(this->nRows, std::vector<int>(this->nCols, 0));
+	whichList.resize(this->nRows, std::vector<int>(this->nCols, 0));
+	parents.resize(this->nRows, std::vector<GridNode*>(this->nCols, 0));
+
 	/////////////////////
 	// TESTING STUFF ////
 
