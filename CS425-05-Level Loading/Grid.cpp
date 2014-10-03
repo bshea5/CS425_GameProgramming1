@@ -141,29 +141,6 @@ Grid::Grid(Ogre::SceneManager* mSceneMgr, int numRows, int numCols)
 	hCosts.resize(this->nRows, std::vector<int>(this->nCols, 0));
 	whichList.resize(this->nRows, std::vector<int>(this->nCols, 0));
 	parents.resize(this->nRows, std::vector<GridNode*>(this->nCols, 0));
-
-	/////////////////////
-	// TESTING STUFF ////
-
-	// std::cout << getSouthNode(getNode(1,1))->getID() << std::endl;
-
-	// //test manhattan distance accross the grid ///////////////////////
-	// int manDist = getDistance(getNode(0,0), getNode(nRows-1, nCols-1));
-	// std::cout << "Manhattan distance across the board is " << manDist << " nodes." << std::endl;
-	// //////////////////////////////////////////////////////////////////
-
-	// //test get neighbors ////////////////////////////////////////////
-	// std::vector<GridNode*> neighbors = getAllNeighbors(getNode(0,0));
-	// std::cout << "Neighbors of node " << getNode(0,0)->getID() << " are..." << std::endl;
-	// for (int i = 0; i < neighbors.size(); i++)
-	// {
-	// 	if (neighbors[i] != NULL)
-	// 		std::cout << neighbors[i]->getID() << std::endl;
-	// }
-	/////////////////////////////////////////////////////////////////
-
-	// END TESTING /////
-	////////////////////
 }
 
 /////////////////////////////////////////
@@ -256,6 +233,7 @@ Grid::getSWNode(GridNode* n)
 	return neighbor;
 }
 
+////////////////////////////////////////////////////////////
 //returns a vector of neighbors
 //vector will contain a NULL for any out of bounds neighbors
 //{North,South,East,West,NE,NW,SE,SW}
@@ -369,4 +347,139 @@ int
 Grid::getNumCols()
 {
 	return this->nCols;
+}
+
+////////////////////////////////////////////////////////////
+//calculate a path from start to end avoiding all obstacles
+std::deque<GridNode*> 
+Grid::aStar(GridNode* start, GridNode* end)
+{
+	std::deque<GridNode*> path;				//optimal path to return
+
+	GridNode* current_node = start;			//node we are currently checking
+	GridNode* next_node = NULL;				//node to check next
+
+	static const int diagonal_cost = sqrt(NODESIZE * NODESIZE + NODESIZE * NODESIZE);
+	int lowest_fCost = NULL;
+	char count = '0';						//for printing path with printFile()
+	
+	static int onOpenList = -1;				//values to use for if on open/closed list
+	static int onClosedList = 0;			//	
+	onOpenList += 5;						//these values will increment with each call to aStar, so old vals are obsolete
+	onClosedList += 5;						//
+
+	whichList[current_node->getRow()][current_node->getColumn()] = onClosedList;
+	gCosts[current_node->getRow()][current_node->getColumn()] = 0;
+	current_node->contains = 'S';
+
+	while (whichList[end->getRow()][end->getColumn()] != onClosedList) //run until target node is on the closed list
+	{
+		//look at adjacent nodes and mark walkable nodes as onOpenList
+		//and assign F, G, H values
+		std::vector<GridNode*> neighbors = getAllNeighbors(current_node);
+		for (unsigned int i = 0; i < neighbors.size(); i++)
+		{
+			// if neighbor is a valid adjacent node, assign costs and mark onOpenList
+			if (neighbors[i] != NULL 
+				&& whichList[neighbors[i]->getRow()][neighbors[i]->getColumn()] != onClosedList) 
+			{
+				//if not already marked onOpen
+				if (whichList[neighbors[i]->getRow()][neighbors[i]->getColumn()] != onOpenList)
+				{
+					whichList[neighbors[i]->getRow()][neighbors[i]->getColumn()] = onOpenList;	
+					//assign Costs -------------------------------------------------------------------------------
+					if (neighbors[i]->getRow() != current_node->getRow() 
+						&& neighbors[i]->getColumn() != current_node->getColumn())
+					{  //diagonal move (NE,NW,SE,SW)
+						gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = 
+							diagonal_cost + gCosts[current_node->getRow()][current_node->getColumn()];
+					}
+					else
+					{  //horizontal/vertical move (N,S,E,W)
+						gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = 
+							NODESIZE + gCosts[current_node->getRow()][current_node->getColumn()];
+					}
+					parents[neighbors[i]->getRow()][neighbors[i]->getColumn()] = current_node;
+					hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = getDistance(neighbors[i], end);
+					fCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] =
+													  gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()]
+													+ hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()];
+					//Costs assigned ------------------------------------------------------------------------------
+				}
+				else //node is already marked onOpenList
+				{
+					//calculate possible new gCost ----------------------------------------------------------------
+					int new_gCost;	
+					if (neighbors[i]->getRow() != current_node->getRow() 
+						&& neighbors[i]->getColumn() != current_node->getColumn())
+					{  //diagonal move (NE,NW,SE,SW)
+						new_gCost = diagonal_cost + gCosts[current_node->getRow()][current_node->getColumn()];
+					}
+					else
+					{  //horizontal/vertical move (N,S,E,W)
+						new_gCost = NODESIZE + gCosts[current_node->getRow()][current_node->getColumn()];
+					}
+
+					//if new cost is lower, change the parent and recalculate F ////////
+					if (new_gCost < gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()])
+					{
+						gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = new_gCost;
+						parents[neighbors[i]->getRow()][neighbors[i]->getColumn()] = current_node;
+						hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = getDistance(neighbors[i], end);
+						fCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] =
+													  gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()]
+													+ hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()];
+					}
+					//else do nothing
+					//Costs re-assigned ----------------------------------------------------------------------------
+				}
+			}
+		}//end for
+
+		//Pick the node with the lowest F value ------------------------------------------------
+		for (int i = 0; i < getNumRows(); i++)
+		{
+			for (int j = 0; j < getNumCols(); j++)
+			{
+				if (whichList[i][j] == onOpenList)	//check only nodes marked onOpenList
+				{
+					if (lowest_fCost == NULL || fCosts[i][j] <= lowest_fCost)
+					{
+						lowest_fCost = fCosts[i][j];
+						next_node = getNode(i,j);
+					}
+				}
+			}
+		}
+		if (lowest_fCost == NULL) // No path available
+		{
+			//std::cout << "No path!!" << std::endl;
+			return path; //return empty path
+		} 
+		//node is picked, assign to current node and mark onClosedList
+		lowest_fCost = NULL;
+		current_node = next_node;
+		whichList[current_node->getRow()][current_node->getColumn()] = onClosedList;
+		current_node->contains = '-';
+		// --------------------------------------------------------------------------------------
+
+	}//end while
+
+	//set up deque for path to return
+	while (current_node != start)
+	{
+		if (current_node == end) { current_node->contains = 'E'; }
+		else current_node->contains = '~';
+		path.push_front(current_node);
+		current_node = parents[current_node->getRow()][current_node->getColumn()];
+	}
+	//and assign path numbers
+	for (unsigned int i = 0; i < path.size(); i++)
+	{
+		path[i]->contains = count;
+		if (count == '9') { count = '0'; }
+		else count++;
+	}
+	printToFile();
+	return path;
 }

@@ -47,17 +47,6 @@ Agent::setPosition(float x, float y, float z)
 	this->mBodyNode->setPosition(x, y + height, z);
 }
 
-//set the position of the agent via a Gridnode
-//void
-//Agent::setNPosition(GridNode* n, int y)
-//{
-//	float x = n->getPosition(n->getRow(), n->getColumn()).x;
-//	float z = n->getPosition(n->getRow(), n->getColumn()).z;
-//	this->setPosition(x, y, z);
-//	this->mGridNode = n;
-//	n->setOccupied();
-//}
-
 void
 Agent::claimNode(GridNode* n)
 {
@@ -212,6 +201,7 @@ Agent::fadeAnimations(Ogre::Real deltaTime)
 	}
 }
 
+////////////////////////////////////////////////////////////////////
 //checks to see if there is a destination available in the mWalkList
 //if so, it sets up the variables for the agent's movement to the
 //next destination.
@@ -247,6 +237,8 @@ Agent::nextLocation()
 	return true;
 }
 
+///////////////////////////////////////////////////////////////////////
+//update animations and move the agent according to deltaTime
 void 
 Agent::updateLocomote(Ogre::Real deltaTime)
 {
@@ -283,6 +275,7 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 	}
 }
 
+///////////////////////////////////////////////
 //generates a list of random points to walk to
 //Not Grid based. Code from last assignment
 void
@@ -297,6 +290,7 @@ Agent::genWalkList()
 	}
 }
 
+///////////////////////////////////////////////////////////////////////
 //walk to gridnode n by passing the position of that gridnode to the mWalklist
 //when mWalklist is checked, the ogre will walk to this point.
 //presently overrids old destination whenever called.
@@ -312,153 +306,21 @@ Agent::walkTo(GridNode* n)
 		mWalkList.clear();
 	}
 	mWalkList.push_back( destination );	//pass destination to walklist
+	mGridNode = n; // TODO: move this somewhere else
 }
 
+///////////////////////////////////////////////////////////////////////
 //calculate a path to the given node destination avoiding all obstacles
-//pass coordinates from each node in the path to the mWalkList
 //utilizes A* algorithm to find the optimal path
 void
 Agent::moveTo(GridNode* n)
 {
-	if (!n->isClear()) { return; }
-	//else std::cout << "walk to node: " << n->getID() << std::endl;
+	if (n== NULL || !n->isClear()) { return; }
 
-	//uses so much memory!!!! but faster than managing lists I suppose
-	//use static 2D vectors to for costs, parents, and whether on open/closed list.
-	//static std::vector<std::vector<int>> fCosts(mGrid->getNumRows(), std::vector<int>(mGrid->getNumCols(), 0));
-	//static std::vector<std::vector<int>> gCosts(mGrid->getNumRows(), std::vector<int>(mGrid->getNumCols(), 0));
-	//static std::vector<std::vector<int>> hCosts(mGrid->getNumRows(), std::vector<int>(mGrid->getNumCols(), 0));
-	//static std::vector<std::vector<int>> whichList(mGrid->getNumRows(), std::vector<int>(mGrid->getNumCols(), 0));
-	//static std::vector<std::vector<GridNode*>> parents(mGrid->getNumRows(), std::vector<GridNode*>(mGrid->getNumCols(), 0));
-	
-	GridNode* current_node = mGridNode;		//node we are currently checking
-	GridNode* next_node = NULL;				//node to check next
-
-	static const int diagonal_cost = sqrt(NODESIZE * NODESIZE + NODESIZE * NODESIZE);
-	int lowest_fCost = NULL;
-	char count = '0';						//for printing path with printFile()
-	
-	static int onOpenList = -1;				//values to use for if on open/closed list
-	static int onClosedList = 0;			//	
-	
-	onOpenList += 5;						//these values will increment with each call to aStar, so old vals are obsolete
-	onClosedList += 5;						//
-
-	mGrid->whichList[current_node->getRow()][current_node->getColumn()] = onClosedList;
-	mGrid->gCosts[current_node->getRow()][current_node->getColumn()] = 0;
-	current_node->contains = 'S';
-
-	while (mGrid->whichList[n->getRow()][n->getColumn()] != onClosedList) //run until target node is on the closed list
+	std::deque<GridNode*> path = mGrid->aStar(mGridNode, n);
+	while (!path.empty())
 	{
-		//look at adjacent nodes and mark walkable nodes as onOpenList
-		//and assign F, G, H values
-		std::vector<GridNode*> neighbors = mGrid->getAllNeighbors(current_node);
-		for (unsigned int i = 0; i < neighbors.size(); i++)
-		{
-			// if neighbor is a valid adjacent node, assign costs and mark onOpenList
-			if (neighbors[i] != NULL 
-				&& mGrid->whichList[neighbors[i]->getRow()][neighbors[i]->getColumn()] != onClosedList) 
-			{
-				//if not already marked onOpen
-				if (mGrid->whichList[neighbors[i]->getRow()][neighbors[i]->getColumn()] != onOpenList)
-				{
-					mGrid->whichList[neighbors[i]->getRow()][neighbors[i]->getColumn()] = onOpenList;	
-					//assign Costs -------------------------------------------------------------------------------
-					if (neighbors[i]->getRow() != current_node->getRow() 
-						&& neighbors[i]->getColumn() != current_node->getColumn())
-					{  //diagonal move (NE,NW,SE,SW)
-						mGrid->gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = 
-							diagonal_cost + mGrid->gCosts[current_node->getRow()][current_node->getColumn()];
-					}
-					else
-					{  //horizontal/vertical move (N,S,E,W)
-						mGrid->gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = 
-							NODESIZE + mGrid->gCosts[current_node->getRow()][current_node->getColumn()];
-					}
-					mGrid->parents[neighbors[i]->getRow()][neighbors[i]->getColumn()] = current_node;
-					mGrid->hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = mGrid->getDistance(neighbors[i], n);
-					mGrid->fCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] =
-													  mGrid->gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()]
-													+ mGrid->hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()];
-					//Costs assigned ------------------------------------------------------------------------------
-				}
-				else //node is already marked onOpenList
-				{
-					//calculate possible new gCost ----------------------------------------------------------------
-					int new_gCost;	
-					if (neighbors[i]->getRow() != current_node->getRow() 
-						&& neighbors[i]->getColumn() != current_node->getColumn())
-					{  //diagonal move (NE,NW,SE,SW)
-						new_gCost = diagonal_cost + mGrid->gCosts[current_node->getRow()][current_node->getColumn()];
-					}
-					else
-					{  //horizontal/vertical move (N,S,E,W)
-						new_gCost = NODESIZE + mGrid->gCosts[current_node->getRow()][current_node->getColumn()];
-					}
-
-					//if new cost is lower, change the parent and recalculate F ////////
-					if (new_gCost < mGrid->gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()])
-					{
-						mGrid->gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = new_gCost;
-						mGrid->parents[neighbors[i]->getRow()][neighbors[i]->getColumn()] = current_node;
-						mGrid->hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] = mGrid->getDistance(neighbors[i], n);
-						mGrid->fCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()] =
-													  mGrid->gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()]
-													+ mGrid->hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()];
-					}
-					//else do nothing
-					//Costs re-assigned ----------------------------------------------------------------------------
-				}
-			}
-		}//end for
-
-		//Pick the node with the lowest F value
-		for (int i = 0; i < mGrid->getNumRows(); i++)
-		{
-			for (int j = 0; j < mGrid->getNumCols(); j++)
-			{
-				if (mGrid->whichList[i][j] == onOpenList)	//check only nodes marked onOpenList
-				{
-					if (lowest_fCost == NULL || mGrid->fCosts[i][j] <= lowest_fCost)
-					{
-						lowest_fCost = mGrid->fCosts[i][j];
-						next_node = mGrid->getNode(i,j);
-					}
-				}
-			}
-		}
-		if (lowest_fCost == NULL) // No path available
-		{
-			std::cout << "No path!!" << std::endl;
-			return; 
-		} 
-		//node is picked, assign to current node and mark onClosedList
-		lowest_fCost = NULL;
-		current_node = next_node;
-		mGrid->whichList[current_node->getRow()][current_node->getColumn()] = onClosedList;
-		current_node->contains = '-';
-
-	}//end while
-	//n->contains = 'E';
-
-	//set up mWalkList using parentage discovered through previous while loop
-	//start with n, and work your way through each parent until the start point
-	if (mWalking)	// overrides old destination
-	{
-		mWalking = false;
-		mWalkList.clear();
-	}
-	while (current_node != mGridNode)
-	{
-		//std::cout << "adding Node: " << current_node->getID() << std::endl;
-		current_node->contains = '~';
-		Ogre::Vector3 destination = current_node->getPosition(mGrid->getNumRows(), mGrid->getNumCols());
-		destination[1] = this->height + this->height;	//this keeps the orge above the grid
-		mWalkList.push_front(destination);
-		current_node = mGrid->parents[current_node->getRow()][current_node->getColumn()];
-	}
-	mGrid->printToFile();
-	mGridNode = n; //ERROR: occurs when spacebar is hit before dest. is reached....
-					// TODO: move this somewhere else
-	
+		walkTo(path.front());
+		path.pop_front();
+	}	
 }

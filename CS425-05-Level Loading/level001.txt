@@ -11,7 +11,7 @@ b sinbad.mesh 7.3 3
 s sinbad.mesh 2.6 1
 
 World
-soookoooos
+soookooooo
 oooktoookk
 ookooooooo
 ookkkkkkko
@@ -20,6 +20,6 @@ ookookkooo
 ooooooooko
 oooooookoo
 ookkookooo
-oookooooos
+oookoooooo
 
 

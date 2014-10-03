@@ -52,6 +52,12 @@ private:
 	std::vector<GridRow> data;		// actually hold the grid data
 	int nRows;						// number of rows
 	int nCols;						// number of columns
+
+	std::vector<std::vector<int>> fCosts;			// f = g + h
+	std::vector<std::vector<int>> gCosts;			// cost to move to node so far
+	std::vector<std::vector<int>> hCosts;			// heuristic: manhattan distance
+	std::vector<std::vector<int>> whichList;		// on open/closed list?
+	std::vector<std::vector<GridNode*>> parents;	// parents of each node
 public:
 	Grid(Ogre::SceneManager* mSceneMgr, int numRows, int numCols);	// create a grid
 	~Grid();					// destroy a grid
@@ -77,11 +83,7 @@ public:
 	void printToFile();				// Print a grid to a file.  Good for debugging
 	void loadObject(std::string name, std::string filename, int row, int height, int col, float scale = 1); // load and place a model in a certain location.
 
-	std::vector<std::vector<int>> fCosts;
-	std::vector<std::vector<int>> gCosts;
-	std::vector<std::vector<int>> hCosts;
-	std::vector<std::vector<int>> whichList;
-	std::vector<std::vector<GridNode*>> parents;
+	std::deque<GridNode*> aStar(GridNode* start, GridNode* end);	//return optimal path from start to end
 	
 };
 

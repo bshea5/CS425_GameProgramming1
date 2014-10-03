@@ -17,6 +17,9 @@ $RECYCLE.BIN/
 #visual studio .sdf file
 *.sdf
 
+#tlog files
+*.tlog
+
 # =========================
 # Operating System Files
 # =========================
