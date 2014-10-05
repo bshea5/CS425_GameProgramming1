@@ -480,6 +480,6 @@ Grid::aStar(GridNode* start, GridNode* end)
 		if (count == '9') { count = '0'; }
 		else count++;
 	}
-	printToFile();
+	printToFile(); //move this to while their running instead of before
 	return path;
 }
