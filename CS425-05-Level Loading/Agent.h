@@ -53,6 +53,7 @@ private:
 	// for A*
 	Grid* mGrid;							// pointer to the current grid the agent is in
 	GridNode* mGridNode;					// node the agent currently occupies 
+	GridNode* mNextNode;					// destination node
 
 	// for locomotion
 	bool mWalking;							// is the agent walking presently?

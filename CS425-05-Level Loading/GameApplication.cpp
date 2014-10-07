@@ -61,13 +61,12 @@ GameApplication::loadEnv()
 	};
 
 	ifstream inputfile;		// Holds a pointer into the file
-
+	const string fileName = "level0B3.txt";
 	string path = __FILE__; //gets the current cpp file's path with the cpp file
 	path = path.substr(0,1+path.find_last_of('\\')); //removes filename to leave path
-	path+= "level001.txt";	//if txt file is in the same directory as cpp file
+	path+= fileName;	//if txt file is in the same directory as cpp file
 	inputfile.open(path);
 
-	//inputfile.open("D:/CS425-2012/Lecture 8/GameEngine-loadLevel/level001.txt"); // bad explicit path!!!
 	if (!inputfile.is_open()) // oops. there was a problem opening the file
 	{
 		cout << "ERROR, FILE COULD NOT BE OPENED" << std::endl;	// Hmm. No output?
@@ -91,7 +90,8 @@ GameApplication::loadEnv()
 	mSceneMgr->getRootSceneNode()->attachObject(floor);
 
 	this->grid = new Grid(mSceneMgr, z, x); // Set up the grid. z is rows, x is columns
-	
+	this->grid->setName(fileName);
+
 	string buf;
 	inputfile >> buf;	// Start looking for the Objects section
 	while  (buf != "Objects")
@@ -151,7 +151,6 @@ GameApplication::loadEnv()
 					agent->setPosition(grid->getPosition(i,j).x, rent->y, grid->getPosition(i,j).z);
 					agent->setGrid(grid);						// pass pointer for grid to agent
 					agent->claimNode(grid->getNode(i,j));		// pass pointer for the gridNode agent is in
-					//agent->setNPosition(grid->getNode(i,j), rent->y);
 
 					// If we were using different characters, we'd have to deal with 
 					// different animation clips. 

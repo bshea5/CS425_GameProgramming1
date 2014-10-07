@@ -135,7 +135,9 @@ Grid::Grid(Ogre::SceneManager* mSceneMgr, int numRows, int numCols)
 			count++;
 		}
 	}
+
 	//vectors to store info for A* 
+	//initialize with zeros and resize for given level
 	fCosts.resize(this->nRows, std::vector<int>(this->nCols, 0));
 	gCosts.resize(this->nRows, std::vector<int>(this->nCols, 0));
 	hCosts.resize(this->nRows, std::vector<int>(this->nCols, 0));
@@ -265,14 +267,25 @@ Grid::getDistance(GridNode* node1, GridNode* node2)
 	return distance * NODESIZE;											//= total # of nodes away * 10
 }
 
+void
+Grid::setName(std::string name)
+{
+	this->levelName = name;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Print out the grid in ASCII
 void 
 Grid::printToFile()
 {
+	static int count = 0;
+	if (count == 9) { count = 0; }
+	count++;
+	std::string str_count = static_cast<std::ostringstream*>( &(std::ostringstream() << count) )->str();
 	std::string path = __FILE__; //gets the current cpp file's path with the cpp file
 	path = path.substr(0,1+path.find_last_of('\\')); //removes filename to leave path
-	path+= "Grid.txt"; //if txt file is in the same directory as cpp file
+	path += levelName + str_count;	//include level name in agent's path file
+	path += "Grid.txt";				//if txt file is in the same directory as cpp file
 	std::ofstream outFile;
 	outFile.open(path);
 
@@ -311,7 +324,6 @@ Grid::loadObject(std::string name, std::string filename, int row, int height, in
         Ogre::Vector3(0.0f, 0.0f,  0.0f));
     node->attachObject(ent);
     node->setScale(scale, scale, scale);
-
 
 	GridNode* gn = this->getNode(row, col);
 	node->setPosition(getPosition(row, col)); 
@@ -386,7 +398,7 @@ Grid::aStar(GridNode* start, GridNode* end)
 				//if not already marked onOpen
 				if (whichList[neighbors[i]->getRow()][neighbors[i]->getColumn()] != onOpenList)
 				{
-					whichList[neighbors[i]->getRow()][neighbors[i]->getColumn()] = onOpenList;	
+					whichList[neighbors[i]->getRow()][neighbors[i]->getColumn()] = onOpenList;
 					//assign Costs -------------------------------------------------------------------------------
 					if (neighbors[i]->getRow() != current_node->getRow() 
 						&& neighbors[i]->getColumn() != current_node->getColumn())
@@ -405,6 +417,7 @@ Grid::aStar(GridNode* start, GridNode* end)
 													  gCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()]
 													+ hCosts[neighbors[i]->getRow()][neighbors[i]->getColumn()];
 					//Costs assigned ------------------------------------------------------------------------------
+					neighbors[i]->contains = '-'; //displays open list nodes in print to file
 				}
 				else //node is already marked onOpenList
 				{
@@ -436,6 +449,7 @@ Grid::aStar(GridNode* start, GridNode* end)
 			}
 		}//end for
 
+		//at this point, nodes on the open list will have re-assigned F values
 		//Pick the node with the lowest F value ------------------------------------------------
 		for (int i = 0; i < getNumRows(); i++)
 		{
@@ -460,7 +474,7 @@ Grid::aStar(GridNode* start, GridNode* end)
 		lowest_fCost = NULL;
 		current_node = next_node;
 		whichList[current_node->getRow()][current_node->getColumn()] = onClosedList;
-		current_node->contains = '-';
+		current_node->contains = '~';	//displays closed list nodes in the print to file
 		// --------------------------------------------------------------------------------------
 
 	}//end while
@@ -468,8 +482,6 @@ Grid::aStar(GridNode* start, GridNode* end)
 	//set up deque for path to return
 	while (current_node != start)
 	{
-		if (current_node == end) { current_node->contains = 'E'; }
-		else current_node->contains = '~';
 		path.push_front(current_node);
 		current_node = parents[current_node->getRow()][current_node->getColumn()];
 	}

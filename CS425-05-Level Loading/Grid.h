@@ -6,6 +6,8 @@
 
 #pragma once
 #define GRID_H
+#include <string>
+#include <sstream>
 #include <iostream>
 #include <vector>
 #include <assert.h>
@@ -50,6 +52,7 @@ class Grid {
 private:
 	Ogre::SceneManager* mSceneMgr;	// pointer to scene graph
 	std::vector<GridRow> data;		// actually hold the grid data
+	std::string levelName;				
 	int nRows;						// number of rows
 	int nCols;						// number of columns
 
@@ -80,6 +83,7 @@ public:
 	int getNumRows();	//return number of rows in grid
 	int getNumCols();	//return number of columns in grid
 
+	void setName(std::string name);	//set the name of the grid level
 	void printToFile();				// Print a grid to a file.  Good for debugging
 	void loadObject(std::string name, std::string filename, int row, int height, int col, float scale = 1); // load and place a model in a certain location.
 

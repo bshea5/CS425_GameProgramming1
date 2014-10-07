@@ -28,11 +28,12 @@ Agent::Agent(Ogre::SceneManager* SceneManager, std::string name, std::string fil
 
 	// configure walking parameters
 	mWalking = false;
-	mWalkSpeed = 35.0f;	
+	mWalkSpeed = 50.0f;	
 	mDirection = Ogre::Vector3::ZERO;
 
 	mGrid = NULL;
 	mGridNode = NULL;
+	mNextNode = NULL;
 }
 
 Agent::~Agent(){
@@ -44,7 +45,7 @@ Agent::~Agent(){
 void 
 Agent::setPosition(float x, float y, float z)
 {
-	this->mBodyNode->setPosition(x, y + height, z);
+	this->mBodyNode->setPosition(x, y + height , z); 
 }
 
 void
@@ -259,7 +260,7 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 		{
 			mBodyNode->setPosition(mDestination);
 			mDirection = Ogre::Vector3::ZERO;
-
+			if (mNextNode != NULL) { mGridNode = mNextNode; }
 			if ( !nextLocation() )	//no other point to walk to, Idle ogre is idle
 			{
 				// set Idle animation
@@ -268,10 +269,7 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 				return;
 			}
 		}
-		else 
-		{
-			mBodyNode->translate(mDirection * move);
-		}
+		else { mBodyNode->translate(mDirection * move); }
 	}
 }
 
@@ -294,10 +292,11 @@ Agent::genWalkList()
 //walk to gridnode n by passing the position of that gridnode to the mWalklist
 //when mWalklist is checked, the ogre will walk to this point.
 //presently overrids old destination whenever called.
-//adding aStar method call inside to get a path to destination, going around obstacles
 void
 Agent::walkTo(GridNode* n) 
 {   
+	if (n== NULL || !n->isClear()) { return; }
+
 	Ogre::Vector3 destination = n->getPosition( mGrid->getNumRows(), mGrid->getNumCols() );
 	destination[1] = this->height + height;	//this keeps the orge above the grid
 	if ( mWalking )	// overrides old destination
@@ -306,15 +305,20 @@ Agent::walkTo(GridNode* n)
 		mWalkList.clear();
 	}
 	mWalkList.push_back( destination );	//pass destination to walklist
-	mGridNode = n; // TODO: move this somewhere else
+	
+	mNextNode = n;	//need to handle updating current node position better
+					//so he can recieve new coords while running
+					//since A* considers his current position in terms of GridNode*
 }
 
 ///////////////////////////////////////////////////////////////////////
 //calculate a path to the given node destination avoiding all obstacles
 //utilizes A* algorithm to find the optimal path
+//once path is determined, pass each destination on the path to walkTo
 void
 Agent::moveTo(GridNode* n)
 {
+	if ( mWalking ) { return; }
 	if (n== NULL || !n->isClear()) { return; }
 
 	std::deque<GridNode*> path = mGrid->aStar(mGridNode, n);
@@ -322,5 +326,5 @@ Agent::moveTo(GridNode* n)
 	{
 		walkTo(path.front());
 		path.pop_front();
-	}	
+	}
 }
