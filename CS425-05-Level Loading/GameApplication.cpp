@@ -61,7 +61,7 @@ GameApplication::loadEnv()
 	};
 
 	ifstream inputfile;		// Holds a pointer into the file
-	const string fileName = "level0B3.txt";
+	const string fileName = "level0B1.txt";
 	string path = __FILE__; //gets the current cpp file's path with the cpp file
 	path = path.substr(0,1+path.find_last_of('\\')); //removes filename to leave path
 	path+= fileName;	//if txt file is in the same directory as cpp file

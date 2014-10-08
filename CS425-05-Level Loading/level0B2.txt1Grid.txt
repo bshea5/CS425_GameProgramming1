@@ -1,0 +1,10 @@
+B B B B B B B B B B B B B B B B B B B B 
+B . . . B . . . B . . . . . . . . . . B 
+B . . . B . . . B . . . . . . B B B B B 
+B B B B B B B . B . . . . B B . . . . B 
+B E . . . . . . B B . . B . . . . . . B 
+B B B B B B B B B . B B . . . . . . . B 
+B ~ ~ ~ ~ ~ ~ ~ ~ B B B B B B B B B B B 
+B ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ X ~ B 
+B ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ B 
+B B B B B B B B B B B B B B B B B B B B 

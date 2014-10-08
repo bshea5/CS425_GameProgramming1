@@ -468,6 +468,9 @@ Grid::aStar(GridNode* start, GridNode* end)
 		if (lowest_fCost == NULL) // No path available
 		{
 			//std::cout << "No path!!" << std::endl;
+			start->contains = 'X';	//X for no path found
+			end->contains = 'E';
+			printToFile();
 			return path; //return empty path
 		} 
 		//node is picked, assign to current node and mark onClosedList
@@ -492,6 +495,7 @@ Grid::aStar(GridNode* start, GridNode* end)
 		if (count == '9') { count = '0'; }
 		else count++;
 	}
+	end->contains = 'E';
 	printToFile(); //move this to while their running instead of before
 	return path;
 }
