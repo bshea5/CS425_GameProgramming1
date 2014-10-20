@@ -37,7 +37,7 @@ public:
     bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
     bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
 	////////////////////////////////////////////////////////////////////////////
-
+	std::list<Agent*> getAgentList();	//return the current agent list
 
 protected:
     virtual void createScene(void);

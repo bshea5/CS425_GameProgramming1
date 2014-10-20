@@ -1,10 +1,11 @@
 #include "Agent.h"
 
-Agent::Agent(Ogre::SceneManager* SceneManager, std::string name, std::string filename, float height, float scale)
+Agent::Agent(GameApplication* game, Ogre::SceneManager* SceneManager, std::string name, std::string filename, float height, float scale)
 {
 	using namespace Ogre;
 
-	mSceneMgr = SceneManager; // keep a pointer to where this agent will be
+	mGame = game;				// a pointer to the game application
+	mSceneMgr = SceneManager;	// keep a pointer to where this agent will be
 
 	if (mSceneMgr == NULL)
 	{
@@ -28,7 +29,7 @@ Agent::Agent(Ogre::SceneManager* SceneManager, std::string name, std::string fil
 
 	// configure walking parameters
 	mWalking = false;
-	mWalkSpeed = 50.0f;	
+	mWalkSpeed = 25.0f;	
 	mDirection = Ogre::Vector3::ZERO;
 
 	mGrid = NULL;
@@ -219,7 +220,8 @@ Agent::nextLocation()
 	mDestination = mWalkList.front();	// get next destination
 	mWalkList.pop_front();				// remove from queue
 
-	mDirection = mDestination - mBodyNode->getPosition();	//set direction
+	//mDirection = mDestination - mBodyNode->getPosition();	//set direction
+	mDirection = vFlock();
 
 	mDistance = mDirection.normalise();
 
@@ -258,8 +260,9 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 
 		if ( mDistance <= 0.0f )	// destination reached!
 		{
-			mBodyNode->setPosition(mDestination);
+			//mBodyNode->setPosition(mDestination);
 			mDirection = Ogre::Vector3::ZERO;
+			//mDirection = vFlock();
 			if (mNextNode != NULL) { mGridNode = mNextNode; }
 			if ( !nextLocation() )	//no other point to walk to, Idle ogre is idle
 			{
@@ -327,4 +330,80 @@ Agent::moveTo(GridNode* n)
 		walkTo(path.front());
 		path.pop_front();
 	}
+}
+
+///////////////////////////////////////////////////////////////////////
+// calculate flocking velocity 
+Ogre::Vector3
+Agent::vFlock()
+{
+	return CSEPERATE * vSeparate()
+		+  CALIGN	 * vAlign()
+		+  CCOHESION * vCohesion();
+}
+
+//TODO:	add a max distance for neighborhoods eventually
+
+// calculate the separation velocity
+Ogre::Vector3 
+Agent::vSeparate()
+{
+	Ogre::Vector3 sum = Ogre::Vector3::ZERO;
+
+	std::list<Agent*> agentList = mGame->getAgentList();
+	std::list<Agent*>::iterator iter;
+	for (iter = agentList.begin(); iter != agentList.end(); iter++)
+	{
+		if (*iter != NULL && *iter != this)	//don't check agent with itself
+		{
+			Ogre::Vector3 dist = this->mBodyNode->getPosition() - (*iter)->mBodyNode->getPosition();
+			sum += WEIGHT * dist / (dist.normalise() * dist.normalise());
+		}
+	}
+	return KSEPERATE * sum;
+}
+
+// calculate the alignment velocity
+Ogre::Vector3 
+Agent::vAlign()
+{
+	Ogre::Vector3 sum_wTimesV = Ogre::Vector3::ZERO;
+	Ogre::Vector3 sum_w = Ogre::Vector3::ZERO;
+
+	std::list<Agent*> agentList = mGame->getAgentList();
+	std::list<Agent*>::iterator iter;
+	for (iter = agentList.begin(); iter != agentList.end(); iter++)	
+	{
+		if (*iter != NULL && *iter != this)
+		{
+			Ogre::Vector3 iVelocity =  mDestination - mBodyNode->getPosition(); 
+										//(*iter)->mDirection;//* (*iter)->mWalkSpeed;
+			sum_wTimesV += WEIGHT * iVelocity;
+			sum_w += WEIGHT;
+		}
+	}
+	return KALIGN * (sum_wTimesV / sum_w);
+}
+
+// calculate the cohesion velocity
+Ogre::Vector3 
+Agent::vCohesion()
+{
+	Ogre::Vector3 xCenterOfMass = Ogre::Vector3::ZERO;
+	Ogre::Vector3 sum_wTimesV = Ogre::Vector3::ZERO;
+	Ogre::Vector3 sum_w = Ogre::Vector3::ZERO;
+
+	std::list<Agent*> agentList = mGame->getAgentList();
+	std::list<Agent*>::iterator iter;
+	for (iter = agentList.begin(); iter != agentList.end(); iter++)
+	{
+		if (*iter != NULL && *iter != this)
+		{
+			sum_wTimesV += WEIGHT * (*iter)->mBodyNode->getPosition();
+			sum_w += WEIGHT;
+		}
+	}
+
+	xCenterOfMass = sum_wTimesV / sum_w;
+	return KCOHESION * (xCenterOfMass - this->mBodyNode->getPosition());
 }
