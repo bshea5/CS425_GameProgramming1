@@ -10,9 +10,9 @@
 #define CSEPERATE 1.0
 #define CALIGN 1.0
 #define CCOHESION 1.0
-#define KSEPERATE 1.5
-#define KALIGN 1.0
-#define KCOHESION 1.0
+#define KSEPERATE 1.0
+#define KALIGN 8.0
+#define KCOHESION 100
 #define WEIGHT 1.0
 
 //forward declarations -----

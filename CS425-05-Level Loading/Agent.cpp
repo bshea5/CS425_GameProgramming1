@@ -220,15 +220,9 @@ Agent::nextLocation()
 	mDestination = mWalkList.front();	// get next destination
 	mWalkList.pop_front();				// remove from queue
 
-	//mDirection = mDestination - mBodyNode->getPosition();	//set direction
-	mDirection = vFlock();
-	std::cout << "mDirection_before: " << mDirection << std::endl;
-	//Ogre::Vector3 mSomething = Ogre::Vector3(mDirection[0], mDirection[1], mDirection[2]);
+	mDirection = mDestination - mBodyNode->getPosition();	//set direction
 
 	mDistance = mDirection.normalise();
-	std::cout << "mDirection_after: " << mDirection << std::endl;
-	//mDistance = mSomething.normalise();
-	//mDistance = mDirection.normalisedCopy().normalise();
 
 	// Rotation code will go here, moved from updateLocomote
  	Ogre::Vector3 src = mBodyNode->getOrientation() * Ogre::Vector3::UNIT_Z;
@@ -260,6 +254,7 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 		}
 	}
 	else {
+		mDirection = vFlock();
 		Ogre::Real move = (mWalkSpeed * deltaTime);
 		mDistance -= move; 
 
@@ -353,7 +348,8 @@ Agent::vFlock()
 Ogre::Vector3 
 Agent::vSeparate()
 {
-	Ogre::Vector3 sum = Ogre::Vector3::ZERO;
+	//Ogre::Vector3 sum = Ogre::Vector3::ZERO;
+	Ogre::Vector3 sep = Ogre::Vector3::ZERO;
 
 	std::list<Agent*> agentList = mGame->getAgentList();
 	std::list<Agent*>::iterator iter;
@@ -362,18 +358,26 @@ Agent::vSeparate()
 		if (*iter != NULL && *iter != this)	//don't check agent with itself
 		{
 			Ogre::Vector3 dist = this->mBodyNode->getPosition() - (*iter)->mBodyNode->getPosition();
-			sum += WEIGHT * dist / (dist.normalise() * dist.normalise());
+			Ogre::Real dist_magnitude = sqrt(dist[0] * dist[0] + dist[1] * dist[1] + dist[2] * dist[2]);
+			if (dist_magnitude < 100)	//check if agents are close to one another
+			{
+				//sum += WEIGHT * dist / (dist_magnitude * dist_magnitude);
+				sep -= dist;
+			}
 		}
 	}
-	return KSEPERATE * sum;
+	//return KSEPERATE * sum;
+	return KSEPERATE * sep;
+
 }
 
 // calculate the alignment velocity
 Ogre::Vector3 
 Agent::vAlign()
 {
-	Ogre::Vector3 sum_wTimesV = Ogre::Vector3::ZERO;
-	Ogre::Vector3 sum_w = Ogre::Vector3::ZERO;
+	//Ogre::Vector3 sum_wTimesV = Ogre::Vector3::ZERO;
+	//Ogre::Vector3 sum_w = Ogre::Vector3::ZERO;
+	Ogre::Vector3 align = Ogre::Vector3::ZERO;
 
 	std::list<Agent*> agentList = mGame->getAgentList();
 	std::list<Agent*>::iterator iter;
@@ -381,13 +385,16 @@ Agent::vAlign()
 	{
 		if (*iter != NULL && *iter != this)
 		{
-			Ogre::Vector3 iVelocity =  mDestination - mBodyNode->getPosition(); 
+			//Ogre::Vector3 iVelocity =  (*iter)->mDestination - (*iter)->mBodyNode->getPosition(); 
 										//(*iter)->mDirection;
-			sum_wTimesV += WEIGHT * iVelocity;
-			sum_w += WEIGHT;
+			//sum_wTimesV += WEIGHT * iVelocity;
+			//sum_w += WEIGHT;
+			align += ((*iter)->mDestination - (*iter)->mBodyNode->getPosition());
 		}
 	}
-	return KALIGN * (sum_wTimesV / sum_w);
+	align = align / (agentList.size() - 1);
+	//return KALIGN * (sum_wTimesV / sum_w);
+	return (align - (mDestination - mBodyNode->getPosition())) / KALIGN; //magic number!
 }
 
 // calculate the cohesion velocity
@@ -395,8 +402,8 @@ Ogre::Vector3
 Agent::vCohesion()
 {
 	Ogre::Vector3 xCenterOfMass = Ogre::Vector3::ZERO;
-	Ogre::Vector3 sum_wTimesV = Ogre::Vector3::ZERO;
-	Ogre::Vector3 sum_w = Ogre::Vector3::ZERO;
+	//Ogre::Vector3 sum_wTimesV = Ogre::Vector3::ZERO;
+	//Ogre::Vector3 sum_w = Ogre::Vector3::ZERO;
 
 	std::list<Agent*> agentList = mGame->getAgentList();
 	std::list<Agent*>::iterator iter;
@@ -404,11 +411,14 @@ Agent::vCohesion()
 	{
 		if (*iter != NULL && *iter != this)
 		{
-			sum_wTimesV += WEIGHT * (*iter)->mBodyNode->getPosition();
-			sum_w += WEIGHT;
+			//sum_wTimesV += WEIGHT * (*iter)->mBodyNode->getPosition();
+			//sum_w += WEIGHT;
+			xCenterOfMass += (*iter)->mBodyNode->getPosition();
 		}
 	}
 
-	xCenterOfMass = sum_wTimesV / sum_w;
-	return KCOHESION * (xCenterOfMass - this->mBodyNode->getPosition());
+	//xCenterOfMass = sum_wTimesV / sum_w;
+	xCenterOfMass = xCenterOfMass / (agentList.size() - 1);
+	//return KCOHESION * (xCenterOfMass - this->mBodyNode->getPosition());
+	return (xCenterOfMass - mBodyNode->getPosition()) / KCOHESION;
 }
