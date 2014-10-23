@@ -222,8 +222,13 @@ Agent::nextLocation()
 
 	//mDirection = mDestination - mBodyNode->getPosition();	//set direction
 	mDirection = vFlock();
+	std::cout << "mDirection_before: " << mDirection << std::endl;
+	//Ogre::Vector3 mSomething = Ogre::Vector3(mDirection[0], mDirection[1], mDirection[2]);
 
 	mDistance = mDirection.normalise();
+	std::cout << "mDirection_after: " << mDirection << std::endl;
+	//mDistance = mSomething.normalise();
+	//mDistance = mDirection.normalisedCopy().normalise();
 
 	// Rotation code will go here, moved from updateLocomote
  	Ogre::Vector3 src = mBodyNode->getOrientation() * Ogre::Vector3::UNIT_Z;
@@ -377,7 +382,7 @@ Agent::vAlign()
 		if (*iter != NULL && *iter != this)
 		{
 			Ogre::Vector3 iVelocity =  mDestination - mBodyNode->getPosition(); 
-										//(*iter)->mDirection;//* (*iter)->mWalkSpeed;
+										//(*iter)->mDirection;
 			sum_wTimesV += WEIGHT * iVelocity;
 			sum_w += WEIGHT;
 		}
