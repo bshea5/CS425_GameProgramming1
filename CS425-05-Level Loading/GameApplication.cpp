@@ -61,7 +61,7 @@ GameApplication::loadEnv()
 	};
 
 	ifstream inputfile;		// Holds a pointer into the file
-	const string fileName = "levelBoids.txt";
+	const string fileName = "level0B1.txt";
 	string path = __FILE__; //gets the current cpp file's path with the cpp file
 	path = path.substr(0,1+path.find_last_of('\\')); //removes filename to leave path
 	path+= fileName;	//if txt file is in the same directory as cpp file
@@ -146,7 +146,7 @@ GameApplication::loadEnv()
 				if (rent->agent)	// if it is an agent...
 				{
 					// Use subclasses instead!
-					agent = new Agent(this, this->mSceneMgr, getNewName(), rent->filename, rent->y, rent->scale);
+					agent = new Agent(this->mSceneMgr, getNewName(), rent->filename, rent->y, rent->scale);
 					agentList.push_back(agent);
 					agent->setPosition(grid->getPosition(i,j).x, rent->y, grid->getPosition(i,j).z);
 					agent->setGrid(grid);						// pass pointer for grid to agent
@@ -384,28 +384,15 @@ GameApplication::keyPressed( const OIS::KeyEvent &arg ) // Moved from BaseApplic
     }
 	else if (arg.key == OIS::KC_SPACE)		//run'dem ogres with spacebar
 	{
-		int x = rand() % grid->getNumRows();	//get a random row
-		int y = rand() % grid->getNumCols();	//get a random column
-												//moved to give all agents same dest.
-		std::cout << "row: " << x << "col: " << y << std::endl;
-
 		std::list<Agent*>::iterator iter;
 		for (iter = agentList.begin(); iter != agentList.end(); iter++)
-		{			
-			(*iter)->walkTo(grid->getNode(x, y));		//run to node
-			//(*iter)->moveTo(grid->getNode(x, y));		//run to node, avoid obstacles
-		}
-	}
-	else if (arg.key == OIS::KC_LCONTROL)
-	{
-		std::list<Agent*>::iterator iter;
-		for (iter = agentList.begin(); iter != agentList.end(); iter++)
-		{		
+		{
 			int x = rand() % grid->getNumRows();	//get a random row
 			int y = rand() % grid->getNumCols();	//get a random column
-
-			(*iter)->moveTo(grid->getNode(x, y));		//run to node, avoid obstacles
-		}	
+			
+			//(*iter)->walkTo(grid->getNode(x, y));		//run to node
+			(*iter)->moveTo(grid->getNode(x, y));
+		}
 	}
    
     mCameraMan->injectKeyDown(arg);
@@ -437,10 +424,4 @@ bool GameApplication::mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButto
     if (mTrayMgr->injectMouseUp(arg, id)) return true;
     mCameraMan->injectMouseUp(arg, id);
     return true;
-}
-
-std::list<Agent*> 
-GameApplication::getAgentList()
-{
-	return this->agentList;
 }

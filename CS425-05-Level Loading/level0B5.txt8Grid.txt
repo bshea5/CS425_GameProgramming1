@@ -1,0 +1,15 @@
+B . B B B B . B B B B B B B . 
+B . . . . B . . B B B . . B . 
+B B B B E B B . B B B . . B . 
+B B B B 1 - . . B B . . B B . 
+B 7 8 9 0 B B B B B . B B B . 
+- 6 B B B B B B B B . B . B . 
+B 5 B ~ ~ ~ B B B B . B . B . 
+B 4 3 2 B ~ ~ ~ ~ - . . . B . 
+B - B 1 0 S B B B B . B B B . 
+. . B B B ~ B B B B . B . . . 
+B . B B B ~ B B B B . . . B B 
+B . B B B ~ B B B B B B B B B 
+B . B B B B B B B B B B B B B 
+B . . . . . . . . . B B B B B 
+B B B B B B B B B . B B B B B 

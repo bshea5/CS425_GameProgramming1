@@ -3,22 +3,10 @@
 
 #pragma once
 #include "Grid.h"
-#include "GameApplication.h"
-
-#define MASS 1.0
-#define KV 1.0
-#define CSEPERATE 1.0
-#define CALIGN 1.0
-#define CCOHESION 1.0
-#define KSEPERATE 1.0
-#define KALIGN 8.0
-#define KCOHESION 100
-#define WEIGHT 1.0
 
 //forward declarations -----
 class GridNode;
 class Grid;
-class GameApplication;
 //--------------------------
 
 class Agent
@@ -67,13 +55,6 @@ private:
 	GridNode* mGridNode;					// node the agent currently occupies 
 	GridNode* mNextNode;					// destination node
 
-	// for flocking
-	GameApplication* mGame;					// a pointer to the gameapplication, will use for agent list
-	Ogre::Vector3 vFlock();					// calculate the flocking velocity
-	Ogre::Vector3 vSeparate();				// calculate the separation velocity
-	Ogre::Vector3 vAlign();					// calculate the alignment velocity
-	Ogre::Vector3 vCohesion();				// calculate the cohesion velocity
-
 	// for locomotion
 	bool mWalking;							// is the agent walking presently?
 	Ogre::Real mDistance;					// The distance the agent has left to travel
@@ -86,7 +67,7 @@ private:
 	bool procedural;						// Is this character performing a procedural animation
 
 public:
-	Agent(GameApplication* game, Ogre::SceneManager* SceneManager, std::string name, std::string filename, float height, float scale);
+	Agent(Ogre::SceneManager* SceneManager, std::string name, std::string filename, float height, float scale);
 	~Agent();
 	void setPosition(float x, float y, float z);	//set position by coordinates
 
@@ -98,9 +79,8 @@ public:
 	void setBaseAnimation(AnimID id, bool reset = false);	// choose animation to display
 	void setTopAnimation(AnimID id, bool reset = false);
 
-	void genWalkList();				// generate a random walk list
-	void walkTo(GridNode* n);		// walk character from current location to destination node
-	//void addToWalkList(GridNode* n);	// add destinations to walk list
+	void genWalkList();				//generate a random walk list
+	void walkTo(GridNode* n);		//walk character from current location to destination node
 	void moveTo(GridNode* n);		// calculate path to destination 
 
 };
