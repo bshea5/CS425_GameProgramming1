@@ -9,6 +9,7 @@ GameApplication::GameApplication(void)
 {
 	agent = NULL; // Init member data
 	grid = NULL;
+	demoMode = false;
 }
 //-------------------------------------------------------------------------------------
 GameApplication::~GameApplication(void)
@@ -19,6 +20,8 @@ GameApplication::~GameApplication(void)
 		agentList.clear();
 	if (grid != NULL)
 		delete grid;
+	if (!demoGoals.empty())
+		demoGoals.clear();
 }
 
 //-------------------------------------------------------------------------------------
@@ -61,7 +64,7 @@ GameApplication::loadEnv()
 	};
 
 	ifstream inputfile;		// Holds a pointer into the file
-	const string fileName = "levelBoids.txt";
+	const string fileName = "levelBoids_big.txt";
 	string path = __FILE__; //gets the current cpp file's path with the cpp file
 	path = path.substr(0,1+path.find_last_of('\\')); //removes filename to leave path
 	path+= fileName;	//if txt file is in the same directory as cpp file
@@ -180,6 +183,17 @@ GameApplication::loadEnv()
 					mNode->attachObject(ps);
 					mNode->setPosition(grid->getPosition(i,j).x, 60.0f, grid->getPosition(i,j).z);
 				}
+				else if (c == 'g') //set a goal point to run to with markers
+				{
+					//set markers for goals in game
+					ParticleSystem::setDefaultNonVisibleUpdateTimeout(5);  // set nonvisible timeout
+					ParticleSystem* ps = mSceneMgr->createParticleSystem(getNewName(), "Examples/PurpleFountain");
+					Ogre::SceneNode* mNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+					mNode->attachObject(ps);
+					mNode->setPosition(grid->getPosition(i,j).x, 0.0f, grid->getPosition(i,j).z);
+
+					demoGoals.push_back(grid->getNode(i,j));	//append node to demo walk list
+				}
 			}
 		}
 	
@@ -195,7 +209,7 @@ GameApplication::loadEnv()
 	
 	inputfile.close();
 	grid->printToFile(); // see what the initial grid looks like.
-
+	if (!demoGoals.empty()) { demoMode = true; } //toggle demo mode 
 }
 
 void // Set up lights, shadows, etc
@@ -382,30 +396,51 @@ GameApplication::keyPressed( const OIS::KeyEvent &arg ) // Moved from BaseApplic
     {
         mShutDown = true;
     }
-	else if (arg.key == OIS::KC_SPACE)		//run'dem ogres with spacebar
+	else if (arg.key == OIS::KC_SPACE)		//run'dem ogres with spacebar w/ flocking
 	{
-		int x = rand() % grid->getNumRows();	//get a random row
-		int y = rand() % grid->getNumCols();	//get a random column
-												//moved to give all agents same dest.
-		std::cout << "row: " << x << "col: " << y << std::endl;
-
-		std::list<Agent*>::iterator iter;
-		for (iter = agentList.begin(); iter != agentList.end(); iter++)
-		{			
-			(*iter)->walkTo(grid->getNode(x, y));		//run to node
-			//(*iter)->moveTo(grid->getNode(x, y));		//run to node, avoid obstacles
+		if (demoMode)	//running demo 
+		{
+			while (!demoGoals.empty())
+			{
+				//run one agent, gathering a flock along the way.
+				//(*agentList.begin())->toggleFlocking();
+				//(*agentList.begin())->walkTo(demoGoals.front());	//run to demo goal
+				(*agentList.begin())->toggleFlocking();
+				std::list<Agent*>::iterator iter;
+				for (iter = agentList.begin(); iter != agentList.end(); iter++)
+				{
+					(*iter)->walkTo(demoGoals.front());
+				}
+				demoGoals.pop_front();
+			}
 		}
-	}
-	else if (arg.key == OIS::KC_LCONTROL)
-	{
-		std::list<Agent*>::iterator iter;
-		for (iter = agentList.begin(); iter != agentList.end(); iter++)
-		{		
+		else {		//else run to random points
 			int x = rand() % grid->getNumRows();	//get a random row
 			int y = rand() % grid->getNumCols();	//get a random column
+													//moved to give all agents same dest.
+			std::cout << "row: " << x << "col: " << y << std::endl;
 
-			(*iter)->moveTo(grid->getNode(x, y));		//run to node, avoid obstacles
-		}	
+			std::list<Agent*>::iterator iter;
+			for (iter = agentList.begin(); iter != agentList.end(); iter++)
+			{			
+				if (!(*iter)->isFlocking()) { (*iter)->toggleFlocking(); }
+				(*iter)->walkTo(grid->getNode(x, y));		//run to node
+			}
+		}
+	}
+	else if (arg.key == OIS::KC_LCONTROL)	//run A* movement (TODO: fix it )
+	{
+		if (!demoMode) 
+		{
+			std::list<Agent*>::iterator iter;
+			for (iter = agentList.begin(); iter != agentList.end(); iter++)
+			{		
+				int x = rand() % grid->getNumRows();	//get a random row
+				int y = rand() % grid->getNumCols();	//get a random column
+
+				(*iter)->moveTo(grid->getNode(x, y));		//run to node, avoid obstacles
+			}
+		}
 	}
    
     mCameraMan->injectKeyDown(arg);

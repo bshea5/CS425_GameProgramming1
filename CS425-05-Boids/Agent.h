@@ -70,7 +70,7 @@ private:
 	//Ogre::Vector3 vSeparate();				// calculate the separation velocity
 	//Ogre::Vector3 vAlign();					// calculate the alignment velocity
 	//Ogre::Vector3 vCohesion();				// calculate the cohesion velocity
-	bool nearNeighbors();					// toggle flocking true if near other boids
+	void assimilate();						// bring neighbors into the flock
 	bool mFlocking;							// is the agent flocking with other agents?
 
 	// for locomotion
@@ -83,6 +83,7 @@ private:
 	bool nextLocation();					// Is there another destination?
 	void updateLocomote(Ogre::Real deltaTime);		// update the character's walking
 	bool procedural;						// Is this character performing a procedural animation
+	void rotate(Ogre::Vector3 towards);		// rotate agent towards goal
 
 public:
 	Agent(GameApplication* game, Ogre::SceneManager* SceneManager, std::string name, std::string filename, float height, float scale);
@@ -99,8 +100,9 @@ public:
 
 	void genWalkList();				// generate a random walk list
 	void walkTo(GridNode* n);		// walk character from current location to destination node
+	void walkTo(Ogre::Vector3 dest);// walk character from current location to destination position
 	//void addToWalkList(GridNode* n);	// add destinations to walk list
 	void moveTo(GridNode* n);		// calculate path to destination 
 	bool isFlocking() { return mFlocking; }	//return if agent is flocking
-
+	void toggleFlocking() { mFlocking = !mFlocking; } //toggle flocking on/off
 };

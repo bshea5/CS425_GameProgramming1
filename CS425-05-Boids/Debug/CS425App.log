@@ -1,15 +1,9 @@
-﻿Build started 10/25/2014 11:33:01 AM.
+﻿Build started 10/25/2014 4:39:09 PM.
      1>Project "C:\Users\Brandon\Documents\Visual Studio 2012\Projects\CS425_GameProgramming1\CS425-05-Boids\CS425App.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:\OgreSDK_vc11_v1-9-0\\include\OGRE\Overlay" /I"C:\OgreSDK_vc11_v1-9-0\\boost" /I"C:\OgreSDK_vc11_v1-9-0\\Samples\Common\include" /I"C:\OgreSDK_vc11_v1-9-0\\include\OGRE" /I"C:\OgreSDK_vc11_v1-9-0\\include\OIS" /I"C:\OgreSDK_vc11_v1-9-0\\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt Agent.cpp GameApplication.cpp Grid.cpp main.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:\OgreSDK_vc11_v1-9-0\\include\OGRE\Overlay" /I"C:\OgreSDK_vc11_v1-9-0\\boost" /I"C:\OgreSDK_vc11_v1-9-0\\Samples\Common\include" /I"C:\OgreSDK_vc11_v1-9-0\\include\OGRE" /I"C:\OgreSDK_vc11_v1-9-0\\include\OIS" /I"C:\OgreSDK_vc11_v1-9-0\\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt Agent.cpp
          Agent.cpp
-     1>c:\users\brandon\documents\visual studio 2012\projects\cs425_gameprogramming1\cs425-05-boids\agent.cpp(405): warning C4305: 'argument' : truncation from 'double' to 'const Ogre::Real'
-         Generating Code...
-         Compiling...
-         main.cpp
-         Grid.cpp
-         GameApplication.cpp
-         Generating Code...
+     1>c:\users\brandon\documents\visual studio 2012\projects\cs425_gameprogramming1\cs425-05-boids\agent.cpp(436): warning C4305: 'argument' : truncation from 'double' to 'const Ogre::Real'
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Brandon\Documents\Visual Studio 2012\Projects\CS425_GameProgramming1\CS425-05-Boids\Debug\CS425App.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\OgreSDK_vc11_v1-9-0\\boost\lib" /LIBPATH:"C:\OgreSDK_vc11_v1-9-0\\lib\Debug" OgreMain_d.lib OIS_d.lib OgreOverlay_d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Brandon\Documents\Visual Studio 2012\Projects\CS425_GameProgramming1\CS425-05-Boids\Debug\CS425App.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Brandon\Documents\Visual Studio 2012\Projects\CS425_GameProgramming1\CS425-05-Boids\Debug\CS425App.lib" /MACHINE:X86 Debug\Agent.obj
          Debug\BaseApplication.obj
@@ -25,4 +19,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:01:28.07
+Time Elapsed 00:00:25.71

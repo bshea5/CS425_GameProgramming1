@@ -7,6 +7,7 @@
 // forward declarations ----------------
 class Agent;
 class Grid;
+class GridNode;
 //--------------------------------------
 
 class GameApplication : public BaseApplication
@@ -15,6 +16,8 @@ private:
 	Agent* agent; // store a pointer to the character
 	std::list<Agent*> agentList; // Lecture 5: now a list of agents
 	Grid* grid;	// store a pointer to the grid
+	std::deque<GridNode*> demoGoals; //list of locations to walk to for flocking demo
+	bool demoMode;		//game is running demo mode
 public:
     GameApplication(void);
     virtual ~GameApplication(void);
@@ -27,9 +30,7 @@ public:
 	void addTime(Ogre::Real deltaTime);		// update the game state
 
 	//////////////////////////////////////////////////////////////////////////
-	// Lecture 4: keyboard interaction
-	// moved from base application
-	// OIS::KeyListener
+	// keyboard interaction
     bool keyPressed( const OIS::KeyEvent &arg );
     bool keyReleased( const OIS::KeyEvent &arg );
     // OIS::MouseListener
@@ -38,6 +39,7 @@ public:
     bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
 	////////////////////////////////////////////////////////////////////////////
 	std::list<Agent*> getAgentList();	//return the current agent list
+	bool inDemoMode() { return demoMode; }	//check if in demo mode
 
 protected:
     virtual void createScene(void);

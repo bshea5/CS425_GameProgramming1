@@ -31,6 +31,7 @@ Agent::Agent(GameApplication* game, Ogre::SceneManager* SceneManager, std::strin
 	mDirection = Ogre::Vector3::ZERO;
 
 	mFlocking = false;
+	//mDemo = false;
 
 	mGrid = NULL;
 	mGridNode = NULL;
@@ -225,16 +226,7 @@ Agent::nextLocation()
 	mDistance = mDirection.normalise();
 
 	// Rotation code will go here, moved from updateLocomote
- 	Ogre::Vector3 src = mBodyNode->getOrientation() * Ogre::Vector3::UNIT_Z;
-	if ( (1.0f + src.dotProduct(mDirection)) < 0.0001f) 
-	{
-		mBodyNode->yaw(Ogre::Degree(180));
-	}
-	else 
-	{
-		Ogre::Quaternion quat = src.getRotationTo(mDirection);
-		mBodyNode->rotate(quat);
-	}
+	rotate(mDirection);
 
 	return true;
 }
@@ -253,11 +245,10 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 			setTopAnimation(ANIM_RUN_TOP);
 		}
 	}
-	else {
-		//mDistance -= move; 
+	else { 
 		mDistance = (mDestination - mBodyNode->getPosition()).normalise();
 
-		if ( mDistance <= 5.0f )	// destination reached! //assign a constant?
+		if ( mDistance <= 5.0f )	// destination reached! //assign a constant? magic number is magic
 		{
 			//mBodyNode->setPosition(mDestination); //don't want them to sit on top of each other
 			mDirection = Ogre::Vector3::ZERO;
@@ -284,16 +275,49 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 					}
 				}
 			}
+			else
+			{
+				std::list<Agent*> agentList = mGame->getAgentList();
+				std::list<Agent*>::iterator iter;
+				for (iter = agentList.begin(); iter != agentList.end(); iter++)
+				{
+					if (*iter != NULL && *iter != this)
+					{
+						(*iter)->nextLocation();
+					}
+				}
+			}
 		}
 		else //destination not reached, continue moving
 		{ 
-			if (!mFlocking && !nearNeighbors()) 
+			if (!mFlocking)
 			{
 				Ogre::Real move = (mWalkSpeed * deltaTime);
 				mBodyNode->translate(mDirection * move);	//translate normally
 			}
-			else mBodyNode->translate(vFlock());		//translate with flocking velocity
+			else //flocking
+			{
+				assimilate();						//assimilate any nearby agents, resistance is futile...
+				mBodyNode->translate(vFlock());		//translate with flocking velocity
+			}
 		}
+	}
+}
+
+///////////////////////////////////////////////
+//rotate agent towards goal
+void
+Agent::rotate(Ogre::Vector3 towards)
+{
+ 	Ogre::Vector3 src = mBodyNode->getOrientation() * Ogre::Vector3::UNIT_Z;
+	if ( (1.0f + src.dotProduct(towards)) < 0.0001f) 
+	{
+		mBodyNode->yaw(Ogre::Degree(180));
+	}
+	else 
+	{
+		Ogre::Quaternion quat = src.getRotationTo(towards);
+		mBodyNode->rotate(quat);
 	}
 }
 
@@ -313,23 +337,30 @@ Agent::genWalkList()
 }
 
 ///////////////////////////////////////////////////////////////////////
-//walk to gridnode n by passing the position of that gridnode to the mWalklist
+//walk to gridnode n by passing the destination vector
 //when mWalklist is checked, the ogre will walk to this point.
-//presently overrids old destination whenever called.
+//presently overrides old destination whenever called.
 void
-Agent::walkTo(GridNode* n) 
+Agent::walkTo(Ogre::Vector3 destination) 
 {   
-	if (n== NULL || !n->isClear()) { return; }
-
-	Ogre::Vector3 destination = n->getPosition( mGrid->getNumRows(), mGrid->getNumCols() );
 	destination[1] = this->height + height;	//this keeps the orge above the grid
-	if ( mWalking )	// overrides old destination
+	if ( mWalking && !mGame->inDemoMode())	// overrides old destination
 	{
 		mWalking = false;
 		mWalkList.clear();
 	}
 	mWalkList.push_back( destination );	//pass destination to walklist
-	
+}
+
+///////////////////////////////////////////////////////////////////////
+//walk to gridnode n by passing the position of that gridnode to the mWalklist
+void
+Agent::walkTo(GridNode* n)
+{
+	if (n== NULL || !n->isClear()) { return; }
+	Ogre::Vector3 destination = n->getPosition( mGrid->getNumRows(), mGrid->getNumCols() );
+	walkTo(destination);
+
 	mNextNode = n;	//need to handle updating current node position better
 					//so he can recieve new coords while running
 					//since A* considers his current position in terms of GridNode*
@@ -418,28 +449,26 @@ Agent::vFlock()
 
 ///////////////////////////////////////////////////////////////////
 //toggle flocking true/false if near other boids or not
-bool
-Agent::nearNeighbors()
+void
+Agent::assimilate()
 {
-	if (mFlocking) { return true; }	//check if already flocking
-	//else check for neighbors
 	std::list<Agent*>::iterator iter;
 	std::list<Agent*> agentList = mGame->getAgentList();
 	for (iter = agentList.begin(); iter != agentList.end(); iter++)
 	{
 		if (*iter != NULL && *iter != this)	//don't check agent with itself
+		if (!(*iter)->isFlocking())
 		{
 			Ogre::Vector3 dist = mBodyNode->getPosition() - (*iter)->mBodyNode->getPosition();
 			Ogre::Real length = dist.length();
-			if ( length < 50 )
+			if ( length < 50 )	//check if close, if so, bring agent into the fold, I mean flock
 			{
-				mFlocking = true;
 				std::cout << "agent joining the flock!" << std::endl;
 				(*iter)->mFlocking = true;
+				//walkTo((*iter)->mDestination);	//walk to the same destination
 			}
 		}
 	}
-	return mFlocking;
 }
 
 //TODO:	add a max distance for neighborhoods eventually
