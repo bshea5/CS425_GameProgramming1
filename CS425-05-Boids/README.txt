@@ -1,29 +1,23 @@
 Author: Brandon Shea
-Assignment 4 'Avoidin'
+Assignment 5 'Boids'
 CS425 Game Programming 1
 
 Overview:
-This program utilizes the A* algorithm to find the optimal path from a starting point to an end point. By hitting the spacebar, you will generate for each agent, a random node to run to.  Each agent will then find the optimal path to get there, and move to each node along the path.  Be aware that hitting the spacebar will sometimes pass a blocked or unreachable location, which will cause that particular agent to not move.  If it was because of an unreachable destination, a printfile will still be called so that you can see where the agent checked for paths.  Speaking of the printfile, after an agent has found its optimal path to a node, it will generate a text file showing its path taken, and also the nodes on the open or closed lists.
+This program is an implementation of flocking using boids.  Each agent will come together and move to each goal point.  Space bar will trigger the demo event, moving the flock from one demo goal to the next; in total 12. 
 
-PrintFile INFO:
-Numbers '0'-'9' = path from start to end
-'S' = Start
-'E' = End
-'B' = Blocked
-'X' = No path available from this point
-'~' = Closed
-'-' = Open 
+WARNING: 
+If you press space bar during the demo, it will exit demo mode and move the group to random nodes with each press, but still flocking.
 
-Each level can generate up to 10 text files, after which, previous files will start to be overwritten.
-You will find 5 files for testing A* out. level0B1-level0B5
-Their path files will include the level names.
+Issues: (lots)
+Right now, the group stops whenever one of the boids gets to the goal.  This could cause problems if the distance check is too small. They could miss the target and never stop walking.
 
-Note:
-+ spacebar will not always generate a valid node, and might require additional presses for maps with lots of blocked nodes and invalid paths
+Doesn't allow multiple flocks at the moment
 
-+ spacebar will only generate a movement if the agent is not already moving
-+ if one agent is moving but another isn't, spacebar will generate a path for the agent not moving.
+distance check for joining a flock is large right now, so they all are in the same flock rather immedietly.
 
-Known Bugs:
--Still using the height + height hack to keep the ogre above the ground.
--There is a pause will generating paths on large grids with multiple agents
+vFlock seems to be affecting the agents while standing.
+
+rotation code is commented out for vFlock, causes break dancing. Still updates for nextLocation though.
+
+Notes:
+the demo goals are the sparklers.

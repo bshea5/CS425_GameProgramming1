@@ -400,11 +400,10 @@ GameApplication::keyPressed( const OIS::KeyEvent &arg ) // Moved from BaseApplic
 	{
 		if (demoMode)	//running demo 
 		{
-			while (!demoGoals.empty())
+			std::cout << "Demo mode: running to set goals\n"
+				<< "press spacebar again to toggle off and run to random points" << std::endl;
+			while (!demoGoals.empty())		//run to demo goals
 			{
-				//run one agent, gathering a flock along the way.
-				//(*agentList.begin())->toggleFlocking();
-				//(*agentList.begin())->walkTo(demoGoals.front());	//run to demo goal
 				(*agentList.begin())->toggleFlocking();
 				std::list<Agent*>::iterator iter;
 				for (iter = agentList.begin(); iter != agentList.end(); iter++)
@@ -413,6 +412,7 @@ GameApplication::keyPressed( const OIS::KeyEvent &arg ) // Moved from BaseApplic
 				}
 				demoGoals.pop_front();
 			}
+			demoMode = false; //toggle off demo mode. I would like this to trigger elsewhere
 		}
 		else {		//else run to random points
 			int x = rand() % grid->getNumRows();	//get a random row

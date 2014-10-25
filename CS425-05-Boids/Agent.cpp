@@ -231,8 +231,8 @@ Agent::nextLocation()
 	return true;
 }
 
-///////////////////////////////////////////////////////////////////////
-//update animations and move the agent according to deltaTime
+//////////////////////////////////////////////////////////////////////////////
+//update animations and move the agent according to //NOdeltaTimeNO// distance
 void 
 Agent::updateLocomote(Ogre::Real deltaTime)
 {
@@ -260,6 +260,7 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 				setTopAnimation(ANIM_IDLE_TOP);
 
 				//if part of a flock, stop the flock and idle them too
+				//so flock stops when one of them arrives at the destination
 				if (mFlocking)
 				{
 					std::list<Agent*> agentList = mGame->getAgentList();
@@ -276,7 +277,9 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 				}
 			}
 			else
-			{
+			{   //Need to fix this to allow multiple flocks
+				//first agent to arrive at destination will trigger this
+				//get destinations for the rest of the flock
 				std::list<Agent*> agentList = mGame->getAgentList();
 				std::list<Agent*>::iterator iter;
 				for (iter = agentList.begin(); iter != agentList.end(); iter++)
@@ -298,7 +301,10 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 			else //flocking
 			{
 				assimilate();						//assimilate any nearby agents, resistance is futile...
-				mBodyNode->translate(vFlock());		//translate with flocking velocity
+				Ogre::Vector3 flocking = vFlock();
+				mBodyNode->translate(flocking);		//translate with flocking velocity
+				//rotation code is causing break dancing
+				//rotate(flocking);					//rotated based on flocking velocity
 			}
 		}
 	}
@@ -385,7 +391,7 @@ Agent::moveTo(GridNode* n)
 }
 
 ///////////////////////////////////////////////////////////////////////
-// calculate flocking velocity 
+// calculate flocking velocity and return it
 Ogre::Vector3
 Agent::vFlock()
 {
@@ -407,7 +413,7 @@ Agent::vFlock()
 		if (*iter != NULL && *iter != this)		//don't check agent with itself
 		if ((*iter)->mFlocking)					//is the agent flocking?
 		{
-			count++;
+			count++;	//number of agents checked
 
 			//--some calculations for Seperation --------------------------------------------------
 			Ogre::Vector3 dist = mBodyNode->getPosition() - (*iter)->mBodyNode->getPosition();
@@ -427,11 +433,11 @@ Agent::vFlock()
 	}
 	vSeparate = vSeparate * KSEPERATE;						//sereration velocity
 
-	vAlign = vAlign / count; //(agentList.size() - 1);
+	vAlign = vAlign / count;
 	vAlign = vAlign - mDirection;
 	vAlign = vAlign * KALIGN;								//alignment velocity
 
-	xCenterOfMass = xCenterOfMass / count; //(agentList.size() - 1);
+	xCenterOfMass = xCenterOfMass / count;
 	vCohesion = xCenterOfMass - mBodyNode->getPosition();
 	vCohesion = vCohesion * KCOHESION;						//cohesion velocity
 
@@ -448,7 +454,8 @@ Agent::vFlock()
 }
 
 ///////////////////////////////////////////////////////////////////
-//toggle flocking true/false if near other boids or not
+//toggle other agents nearby, toggle them to flock
+//resistance is futile, we are the boids, you will be assimilated.
 void
 Agent::assimilate()
 {
@@ -461,19 +468,13 @@ Agent::assimilate()
 		{
 			Ogre::Vector3 dist = mBodyNode->getPosition() - (*iter)->mBodyNode->getPosition();
 			Ogre::Real length = dist.length();
-			if ( length < 50 )	//check if close, if so, bring agent into the fold, I mean flock
-			{
-				std::cout << "agent joining the flock!" << std::endl;
-				(*iter)->mFlocking = true;
-				//walkTo((*iter)->mDestination);	//walk to the same destination
-			}
+			//check if close, if so, bring agent into the fold, I mean flock
+			if ( length < 50 )	{ (*iter)->mFlocking = true; }
 		}
 	}
 }
 
 //TODO:	add a max distance for neighborhoods eventually
-//TODO: going through list 3 times, fix to cycle through once.
-
 
 //OLD CODE
 // calculate the separation velocity
