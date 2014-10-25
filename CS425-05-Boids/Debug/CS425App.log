@@ -1,9 +1,9 @@
-﻿Build started 10/25/2014 12:22:19 AM.
+﻿Build started 10/25/2014 11:33:01 AM.
      1>Project "C:\Users\Brandon\Documents\Visual Studio 2012\Projects\CS425_GameProgramming1\CS425-05-Boids\CS425App.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:\OgreSDK_vc11_v1-9-0\\include\OGRE\Overlay" /I"C:\OgreSDK_vc11_v1-9-0\\boost" /I"C:\OgreSDK_vc11_v1-9-0\\Samples\Common\include" /I"C:\OgreSDK_vc11_v1-9-0\\include\OGRE" /I"C:\OgreSDK_vc11_v1-9-0\\include\OIS" /I"C:\OgreSDK_vc11_v1-9-0\\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt Agent.cpp GameApplication.cpp Grid.cpp main.cpp
          Agent.cpp
-     1>c:\users\brandon\documents\visual studio 2012\projects\cs425_gameprogramming1\cs425-05-boids\agent.cpp(399): warning C4305: 'argument' : truncation from 'double' to 'const Ogre::Real'
+     1>c:\users\brandon\documents\visual studio 2012\projects\cs425_gameprogramming1\cs425-05-boids\agent.cpp(405): warning C4305: 'argument' : truncation from 'double' to 'const Ogre::Real'
          Generating Code...
          Compiling...
          main.cpp
@@ -25,4 +25,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:01:26.58
+Time Elapsed 00:01:28.07

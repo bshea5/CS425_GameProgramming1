@@ -70,7 +70,7 @@ private:
 	//Ogre::Vector3 vSeparate();				// calculate the separation velocity
 	//Ogre::Vector3 vAlign();					// calculate the alignment velocity
 	//Ogre::Vector3 vCohesion();				// calculate the cohesion velocity
-	void nearNeighbors();					// toggle flocking true if near other boids
+	bool nearNeighbors();					// toggle flocking true if near other boids
 	bool mFlocking;							// is the agent flocking with other agents?
 
 	// for locomotion
