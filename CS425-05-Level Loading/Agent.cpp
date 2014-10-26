@@ -1,11 +1,10 @@
 #include "Agent.h"
 
-Agent::Agent(GameApplication* game, Ogre::SceneManager* SceneManager, std::string name, std::string filename, float height, float scale)
+Agent::Agent(Ogre::SceneManager* SceneManager, std::string name, std::string filename, float height, float scale)
 {
 	using namespace Ogre;
 
-	mGame = game;				// a pointer to the game application
-	mSceneMgr = SceneManager;	// keep a pointer to where this agent will be
+	mSceneMgr = SceneManager; // keep a pointer to where this agent will be
 
 	if (mSceneMgr == NULL)
 	{
@@ -29,7 +28,7 @@ Agent::Agent(GameApplication* game, Ogre::SceneManager* SceneManager, std::strin
 
 	// configure walking parameters
 	mWalking = false;
-	mWalkSpeed = 25.0f;	
+	mWalkSpeed = 50.0f;	
 	mDirection = Ogre::Vector3::ZERO;
 
 	mGrid = NULL;
@@ -254,15 +253,13 @@ Agent::updateLocomote(Ogre::Real deltaTime)
 		}
 	}
 	else {
-		mDirection = vFlock();
 		Ogre::Real move = (mWalkSpeed * deltaTime);
 		mDistance -= move; 
 
 		if ( mDistance <= 0.0f )	// destination reached!
 		{
-			//mBodyNode->setPosition(mDestination);
+			mBodyNode->setPosition(mDestination);
 			mDirection = Ogre::Vector3::ZERO;
-			//mDirection = vFlock();
 			if (mNextNode != NULL) { mGridNode = mNextNode; }
 			if ( !nextLocation() )	//no other point to walk to, Idle ogre is idle
 			{
@@ -324,101 +321,10 @@ Agent::moveTo(GridNode* n)
 	if ( mWalking ) { return; }
 	if (n== NULL || !n->isClear()) { return; }
 
-	std::deque<GridNode*> path = mGrid->aStar(mGridNode, n);
+	std::deque<GridNode*> path = mGrid->aStar(mGridNode, n);	//get optimal path
 	while (!path.empty())
 	{
 		walkTo(path.front());
 		path.pop_front();
 	}
-}
-
-///////////////////////////////////////////////////////////////////////
-// calculate flocking velocity 
-Ogre::Vector3
-Agent::vFlock()
-{
-	return CSEPERATE * vSeparate()
-		+  CALIGN	 * vAlign()
-		+  CCOHESION * vCohesion();
-}
-
-//TODO:	add a max distance for neighborhoods eventually
-
-// calculate the separation velocity
-Ogre::Vector3 
-Agent::vSeparate()
-{
-	//Ogre::Vector3 sum = Ogre::Vector3::ZERO;
-	Ogre::Vector3 sep = Ogre::Vector3::ZERO;
-
-	std::list<Agent*> agentList = mGame->getAgentList();
-	std::list<Agent*>::iterator iter;
-	for (iter = agentList.begin(); iter != agentList.end(); iter++)
-	{
-		if (*iter != NULL && *iter != this)	//don't check agent with itself
-		{
-			Ogre::Vector3 dist = this->mBodyNode->getPosition() - (*iter)->mBodyNode->getPosition();
-			Ogre::Real dist_magnitude = sqrt(dist[0] * dist[0] + dist[1] * dist[1] + dist[2] * dist[2]);
-			if (dist_magnitude < 100)	//check if agents are close to one another
-			{
-				//sum += WEIGHT * dist / (dist_magnitude * dist_magnitude);
-				sep -= dist;
-			}
-		}
-	}
-	//return KSEPERATE * sum;
-	return KSEPERATE * sep;
-
-}
-
-// calculate the alignment velocity
-Ogre::Vector3 
-Agent::vAlign()
-{
-	//Ogre::Vector3 sum_wTimesV = Ogre::Vector3::ZERO;
-	//Ogre::Vector3 sum_w = Ogre::Vector3::ZERO;
-	Ogre::Vector3 align = Ogre::Vector3::ZERO;
-
-	std::list<Agent*> agentList = mGame->getAgentList();
-	std::list<Agent*>::iterator iter;
-	for (iter = agentList.begin(); iter != agentList.end(); iter++)	
-	{
-		if (*iter != NULL && *iter != this)
-		{
-			//Ogre::Vector3 iVelocity =  (*iter)->mDestination - (*iter)->mBodyNode->getPosition(); 
-										//(*iter)->mDirection;
-			//sum_wTimesV += WEIGHT * iVelocity;
-			//sum_w += WEIGHT;
-			align += ((*iter)->mDestination - (*iter)->mBodyNode->getPosition());
-		}
-	}
-	align = align / (agentList.size() - 1);
-	//return KALIGN * (sum_wTimesV / sum_w);
-	return (align - (mDestination - mBodyNode->getPosition())) / KALIGN; //magic number!
-}
-
-// calculate the cohesion velocity
-Ogre::Vector3 
-Agent::vCohesion()
-{
-	Ogre::Vector3 xCenterOfMass = Ogre::Vector3::ZERO;
-	//Ogre::Vector3 sum_wTimesV = Ogre::Vector3::ZERO;
-	//Ogre::Vector3 sum_w = Ogre::Vector3::ZERO;
-
-	std::list<Agent*> agentList = mGame->getAgentList();
-	std::list<Agent*>::iterator iter;
-	for (iter = agentList.begin(); iter != agentList.end(); iter++)
-	{
-		if (*iter != NULL && *iter != this)
-		{
-			//sum_wTimesV += WEIGHT * (*iter)->mBodyNode->getPosition();
-			//sum_w += WEIGHT;
-			xCenterOfMass += (*iter)->mBodyNode->getPosition();
-		}
-	}
-
-	//xCenterOfMass = sum_wTimesV / sum_w;
-	xCenterOfMass = xCenterOfMass / (agentList.size() - 1);
-	//return KCOHESION * (xCenterOfMass - this->mBodyNode->getPosition());
-	return (xCenterOfMass - mBodyNode->getPosition()) / KCOHESION;
 }

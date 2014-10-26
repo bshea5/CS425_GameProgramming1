@@ -61,7 +61,7 @@ GameApplication::loadEnv()
 	};
 
 	ifstream inputfile;		// Holds a pointer into the file
-	const string fileName = "level0B1.txt";
+	const string fileName = "level0B3.txt";
 	string path = __FILE__; //gets the current cpp file's path with the cpp file
 	path = path.substr(0,1+path.find_last_of('\\')); //removes filename to leave path
 	path+= fileName;	//if txt file is in the same directory as cpp file
@@ -227,65 +227,19 @@ GameApplication::setupEnv()
 void // Load other props or objects
 GameApplication::loadObjects()
 {
-
-	// Lecture 5: comment out all because loading from file
-	//using namespace Ogre;
-	//
-	//Ogre::Entity *ent;
-	//Ogre::SceneNode *node;
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////
-	//// Lecture 4-hold
-	//ent = mSceneMgr->createEntity("Gun", "38pistol.mesh");
-	//node = mSceneMgr->getRootSceneNode()->createChildSceneNode("GunNode", Ogre::Vector3(5.0f, 1.4f,  5.0f));
-	//node->attachObject(ent);
-	//node->pitch(Degree(90));
-	//node->setScale(0.1f, 0.1f, 0.1f);
-
-	//ent = mSceneMgr->createEntity("Gun2", "9mm.mesh");
-	//node = mSceneMgr->getRootSceneNode()->createChildSceneNode("GunNode2", Ogre::Vector3(5.0f, 1.4f,  5.0f));
-	//node->attachObject(ent);
-	//node->pitch(Degree(90));
-	//node->setScale(0.1f, 0.1f, 0.1f);
-	/////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-	///////////////////////////////////////////////////////////////////////
-	//// Draw a line: Lecture 4
-	//Ogre::ManualObject* myManualObject =  mSceneMgr->createManualObject("manual1"); 
-	//Ogre::SceneNode* myManualObjectNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("manual1_node"); 
- //
-	//// NOTE: The second parameter to the create method is the resource group the material will be added to.
-	//// If the group you name does not exist (in your resources.cfg file) the library will assert() and your program will crash
-	//Ogre::MaterialPtr myManualObjectMaterial = Ogre::MaterialManager::getSingleton().create("manual1Material","General"); 
-	//myManualObjectMaterial->setReceiveShadows(false); 
-	//myManualObjectMaterial->getTechnique(0)->setLightingEnabled(true); 
-	//myManualObjectMaterial->getTechnique(0)->getPass(0)->setDiffuse(1,0,0,0); 
-	//myManualObjectMaterial->getTechnique(0)->getPass(0)->setAmbient(1,0,0); 
-	//myManualObjectMaterial->getTechnique(0)->getPass(0)->setSelfIllumination(1,0,0); 
-	////myManualObjectMaterial->dispose();  // dispose pointer, not the material
- // 
-	//myManualObject->begin("manual1Material", Ogre::RenderOperation::OT_LINE_LIST); 
-	//myManualObject->position(3, 2, 1); 
-	//myManualObject->position(8, 1, 0); 
-	//// etc 
-	//myManualObject->end(); 
- //
-	//myManualObjectNode->attachObject(myManualObject);
-	/////////////////////////////////////////////////////////////////////
+	//TODO
 }
 
 void // Load actors, agents, characters
 GameApplication::loadCharacters()
 {
-	// Lecture 5: now loading from file
+	// now loading from file
 	// agent = new Agent(this->mSceneMgr, "Sinbad", "Sinbad.mesh");
 }
 
 void
 GameApplication::addTime(Ogre::Real deltaTime)
 {
-	// Lecture 5: Iterate over the list of agents
 	std::list<Agent*>::iterator iter;
 	for (iter = agentList.begin(); iter != agentList.end(); iter++)
 		if (*iter != NULL)
