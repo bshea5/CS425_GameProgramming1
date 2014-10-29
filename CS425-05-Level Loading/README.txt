@@ -26,4 +26,4 @@ Note:
 
 Known Bugs:
 -Still using the height + height hack to keep the ogre above the ground.
--There is a pause will generating paths on large grids with multiple agents
+-There is a pause while generating paths on large grids with multiple agents
